@@ -43,7 +43,7 @@ class MapaController with ChangeNotifier {
       // 🔌 MODO OFFLINE — usa tiles descargados con MOBAC
       // La ruta sigue el formato estándar de tiles: zoom/x/y.png
       return TileLayer(
-        urlTemplate: 'assets/mapa/{z}/{x}/{y}.png',
+        urlTemplate: 'mapa/{z}/{x}/{y}.png',
         // Usa AssetTileProvider de flutter_map
         tileProvider: _getAssetTileProvider(),
         minZoom: 12.0,
