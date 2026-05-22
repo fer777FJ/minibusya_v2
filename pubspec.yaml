@@ -1,0 +1,43 @@
+name: minibus_ya
+description: Aplicación de transporte público para La Paz y El Alto - Bolivia
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Mapa offline (reemplaza Google Maps - CERO COSTO)
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+
+  # Geolocalización
+  geolocator: ^11.0.0
+  permission_handler: ^11.3.0
+
+  # Persistencia local (favoritos, historial)
+  sqflite: ^2.3.2
+  path: ^1.9.0
+
+  # Utilidades
+  shared_preferences: ^2.2.3
+  flutter_svg: ^2.0.10+1
+  cached_network_image: ^3.3.1
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # Tiles del mapa offline (generados con MOBAC)
+    - assets/mapa/
+    # Archivos JSON de rutas de cada sindicato
+    - assets/rutas/
