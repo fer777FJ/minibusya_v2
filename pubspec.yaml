@@ -37,7 +37,134 @@ flutter:
   uses-material-design: true
 
   assets:
-    # Tiles del mapa offline (generados con MOBAC)
-    - assets/mapa/
-    # Archivos JSON de rutas de cada sindicato
+    # ─── RUTAS JSON ────────────────────────────────────────────
     - assets/rutas/
+ 
+    # ─── TILES ZOOM 12 ─────────────────────────────────────────
+    - assets/mapa/12/1270/
+    - assets/mapa/12/1271/
+    - assets/mapa/12/1272/
+    - assets/mapa/12/1273/
+    - assets/mapa/12/1274/
+ 
+    # ─── TILES ZOOM 13 ─────────────────────────────────────────
+    - assets/mapa/13/2541/
+    - assets/mapa/13/2542/
+    - assets/mapa/13/2543/
+    - assets/mapa/13/2544/
+    - assets/mapa/13/2545/
+    - assets/mapa/13/2546/
+    - assets/mapa/13/2547/
+    - assets/mapa/13/2548/
+ 
+    # ─── TILES ZOOM 14 ─────────────────────────────────────────
+    - assets/mapa/14/5082/
+    - assets/mapa/14/5083/
+    - assets/mapa/14/5084/
+    - assets/mapa/14/5085/
+    - assets/mapa/14/5086/
+    - assets/mapa/14/5087/
+    - assets/mapa/14/5088/
+    - assets/mapa/14/5089/
+    - assets/mapa/14/5090/
+    - assets/mapa/14/5091/
+    - assets/mapa/14/5092/
+    - assets/mapa/14/5093/
+    - assets/mapa/14/5094/
+    - assets/mapa/14/5095/
+    - assets/mapa/14/5096/
+    - assets/mapa/14/5097/
+ 
+    # ─── TILES ZOOM 15 ─────────────────────────────────────────
+    - assets/mapa/15/10165/
+    - assets/mapa/15/10166/
+    - assets/mapa/15/10167/
+    - assets/mapa/15/10168/
+    - assets/mapa/15/10169/
+    - assets/mapa/15/10170/
+    - assets/mapa/15/10171/
+    - assets/mapa/15/10172/
+    - assets/mapa/15/10173/
+    - assets/mapa/15/10174/
+    - assets/mapa/15/10175/
+    - assets/mapa/15/10176/
+    - assets/mapa/15/10177/
+    - assets/mapa/15/10178/
+    - assets/mapa/15/10179/
+    - assets/mapa/15/10180/
+    - assets/mapa/15/10181/
+    - assets/mapa/15/10182/
+    - assets/mapa/15/10183/
+    - assets/mapa/15/10184/
+    - assets/mapa/15/10185/
+    - assets/mapa/15/10186/
+    - assets/mapa/15/10187/
+    - assets/mapa/15/10188/
+    - assets/mapa/15/10189/
+    - assets/mapa/15/10190/
+    - assets/mapa/15/10191/
+    - assets/mapa/15/10192/
+    - assets/mapa/15/10193/
+    - assets/mapa/15/10194/
+ 
+    # ─── TILES ZOOM 16 ─────────────────────────────────────────
+    - assets/mapa/16/20330/
+    - assets/mapa/16/20331/
+    - assets/mapa/16/20332/
+    - assets/mapa/16/20333/
+    - assets/mapa/16/20334/
+    - assets/mapa/16/20335/
+    - assets/mapa/16/20336/
+    - assets/mapa/16/20337/
+    - assets/mapa/16/20338/
+    - assets/mapa/16/20339/
+    - assets/mapa/16/20340/
+    - assets/mapa/16/20341/
+    - assets/mapa/16/20342/
+    - assets/mapa/16/20343/
+    - assets/mapa/16/20344/
+    - assets/mapa/16/20345/
+    - assets/mapa/16/20346/
+    - assets/mapa/16/20347/
+    - assets/mapa/16/20348/
+    - assets/mapa/16/20349/
+    - assets/mapa/16/20350/
+    - assets/mapa/16/20351/
+    - assets/mapa/16/20352/
+    - assets/mapa/16/20353/
+    - assets/mapa/16/20354/
+    - assets/mapa/16/20355/
+    - assets/mapa/16/20356/
+    - assets/mapa/16/20357/
+    - assets/mapa/16/20358/
+    - assets/mapa/16/20359/
+    - assets/mapa/16/20360/
+    - assets/mapa/16/20361/
+    - assets/mapa/16/20362/
+    - assets/mapa/16/20363/
+    - assets/mapa/16/20364/
+    - assets/mapa/16/20365/
+    - assets/mapa/16/20366/
+    - assets/mapa/16/20367/
+    - assets/mapa/16/20368/
+    - assets/mapa/16/20369/
+    - assets/mapa/16/20370/
+    - assets/mapa/16/20371/
+    - assets/mapa/16/20372/
+    - assets/mapa/16/20373/
+    - assets/mapa/16/20374/
+    - assets/mapa/16/20375/
+    - assets/mapa/16/20376/
+    - assets/mapa/16/20377/
+    - assets/mapa/16/20378/
+    - assets/mapa/16/20379/
+    - assets/mapa/16/20380/
+    - assets/mapa/16/20381/
+    - assets/mapa/16/20382/
+    - assets/mapa/16/20383/
+    - assets/mapa/16/20384/
+    - assets/mapa/16/20385/
+    - assets/mapa/16/20386/
+    - assets/mapa/16/20387/
+    - assets/mapa/16/20388/
+    - assets/mapa/16/20389/

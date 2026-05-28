@@ -19,7 +19,7 @@ class RutasController {
   static const List<String> _archivosRutas = [
     'assets/rutas/linea_273_villa_san_antonio.json',
     'assets/rutas/linea_102_miraflores.json',
-    'assets/rutas/linea_trufi_CH.json',
+    'assets/rutas/linea_751_el_alto.json',
     // 👆 Agrega más archivos aquí conforme levanten datos en campo
   ];
 

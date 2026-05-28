@@ -9,6 +9,9 @@ import '../utils/app_theme.dart';
 import '../widgets/letrero_widget.dart';
 import 'search_results_view.dart';
 import 'report_view.dart';
+import 'favoritos_view.dart';
+import 'historial_view.dart';
+import 'configuracion_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -24,7 +27,8 @@ class _HomeViewState extends State<HomeView> {
 
   List<RutaModel> _rutasVisibles = [];
   RutaModel? _rutaSeleccionada;
-  bool _mostrarOffline = false; // ← false = OSM online, true = tiles offline (MOBAC)
+  bool _mostrarOffline =
+      false; // ← false = OSM online, true = tiles offline (MOBAC)
 
   @override
   void initState() {
@@ -120,7 +124,9 @@ class _HomeViewState extends State<HomeView> {
       ),
       children: [
         // 1️⃣  Tiles del mapa (offline o OSM online)
-        _mapaCtrl.getTileLayer(offline: _mostrarOffline), // true = MOBAC offline, false = OSM online
+        _mapaCtrl.getTileLayer(
+            offline:
+                _mostrarOffline), // true = MOBAC offline, false = OSM online
 
         // 2️⃣  Polilíneas de TODAS las rutas (tenue)
         PolylineLayer(
@@ -182,9 +188,8 @@ class _HomeViewState extends State<HomeView> {
   }
 
   List<Marker> _buildMarcadoresParadas() {
-    final rutasMostrar = _rutaSeleccionada != null
-        ? [_rutaSeleccionada!]
-        : _rutasVisibles;
+    final rutasMostrar =
+        _rutaSeleccionada != null ? [_rutaSeleccionada!] : _rutasVisibles;
 
     final markers = <Marker>[];
     for (final ruta in rutasMostrar) {
@@ -367,7 +372,8 @@ class _HomeViewState extends State<HomeView> {
               _buildFiltroChip('Minibús', Icons.directions_bus, true),
               _buildFiltroChip('Trufi', Icons.local_taxi, false),
               _buildFiltroChip('Micro', Icons.directions_bus_filled, false),
-              _buildFiltroChip('PumaKatari', Icons.directions_bus_rounded, false),
+              _buildFiltroChip(
+                  'PumaKatari', Icons.directions_bus_rounded, false),
             ],
           ),
         ],
@@ -426,16 +432,15 @@ class _HomeViewState extends State<HomeView> {
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                   Text(
                     '${ruta.origen} → ${ruta.destino}',
-                    style: TextStyle(
-                        fontSize: 12, color: AppTheme.grisTexto),
+                    style: TextStyle(fontSize: 12, color: AppTheme.grisTexto),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     'Bs. ${ruta.tarifaNormal.toStringAsFixed(1)} normal  •  '
                     'Bs. ${ruta.tarifaEstudiantil.toStringAsFixed(1)} estudiante',
-                    style: TextStyle(
-                        fontSize: 11, color: AppTheme.azulPrimario),
+                    style:
+                        TextStyle(fontSize: 11, color: AppTheme.azulPrimario),
                   ),
                 ],
               ),
@@ -486,18 +491,29 @@ class _HomeViewState extends State<HomeView> {
           ListTile(
             leading: const Icon(Icons.star_outline),
             title: const Text('Rutas Favoritas'),
-            onTap: () {/* TODO: FavoritosView */},
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const FavoritosView()));
+            },
           ),
           ListTile(
             leading: const Icon(Icons.history),
             title: const Text('Historial'),
-            onTap: () {/* TODO: HistorialView */},
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const HistorialView()));
+            },
           ),
-          const Divider(),
           ListTile(
             leading: const Icon(Icons.settings_outlined),
             title: const Text('Configuración'),
-            onTap: () {/* TODO: ConfiguracionView */},
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const ConfiguracionView()));
+            },
           ),
           ListTile(
             leading: Icon(
@@ -506,9 +522,7 @@ class _HomeViewState extends State<HomeView> {
             ),
             title: Text(_mostrarOffline ? 'Modo Offline' : 'Modo Online'),
             subtitle: Text(
-              _mostrarOffline
-                  ? 'Tiles locales (MOBAC)'
-                  : 'OpenStreetMap',
+              _mostrarOffline ? 'Tiles locales (MOBAC)' : 'OpenStreetMap',
               style: const TextStyle(fontSize: 12),
             ),
             onTap: () => setState(() => _mostrarOffline = !_mostrarOffline),
