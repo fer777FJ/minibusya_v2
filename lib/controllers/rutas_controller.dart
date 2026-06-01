@@ -100,4 +100,31 @@ class RutasController {
     _cargado = false;
     _todasLasRutas = [];
   }
+
+  /// Filtra rutas por tipo de vehículo
+  /// Si [tiposSeleccionados] está vacío, retorna todas las rutas
+  Future<List<RutaModel>> filtrarPorTipo(List<String> tiposSeleccionados) async {
+    final rutas = await cargarTodasLasRutas();
+
+    if (tiposSeleccionados.isEmpty) {
+      return rutas;
+    }
+
+    return rutas.where((ruta) {
+      // Retorna true si la ruta tiene AL MENOS UNO de los tipos seleccionados
+      return ruta.tiposVehiculo.any(
+        (tipo) => tiposSeleccionados.contains(tipo),
+      );
+    }).toList();
+  }
+
+  /// Obtiene todos los tipos de vehículo disponibles en las rutas
+  Future<Set<String>> obtenerTiposDisponibles() async {
+    final rutas = await cargarTodasLasRutas();
+    final tipos = <String>{};
+    for (final ruta in rutas) {
+      tipos.addAll(ruta.tiposVehiculo);
+    }
+    return tipos;
+  }
 }

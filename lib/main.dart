@@ -1,11 +1,15 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'utils/app_theme.dart';
 import 'views/home_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar Firebase
+  await Firebase.initializeApp();
 
   // Solo orientación vertical (app de transporte en mano)
   await SystemChrome.setPreferredOrientations([

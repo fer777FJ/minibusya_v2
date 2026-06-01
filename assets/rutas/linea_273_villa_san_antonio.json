@@ -11,7 +11,7 @@
   "tarifa_nocturna": 2.5,
   "horario_inicio": "05:30",
   "horario_fin": "22:00",
-  "tipos_vehiculo": ["Minibús"],
+  "tipos_vehiculo": ["Minibus"],
   "paradas": [
     {
       "id": "273_p01",

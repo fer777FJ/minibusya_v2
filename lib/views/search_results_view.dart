@@ -222,7 +222,7 @@ class _SearchResultsViewState extends State<SearchResultsView> {
                         const SizedBox(width: 6),
                         Text(
                           '${ruta.paradas.length} paradas',
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 11, color: AppTheme.grisTexto),
                         ),
                       ],
@@ -280,7 +280,7 @@ class _SearchResultsViewState extends State<SearchResultsView> {
           Text(
             'Sin resultados para\n"${_searchCtrl.text}"',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppTheme.grisTexto, fontSize: 16),
+            style: const TextStyle(color: AppTheme.grisTexto, fontSize: 16),
           ),
           const SizedBox(height: 8),
           Text(

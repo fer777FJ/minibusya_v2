@@ -1,8 +1,8 @@
 {
   "id": "linea_000",
-  "sindicato": "Sindicato",
-  "numero_linea": "000",
-  "origen": "Col. Jose Manuel Pando",
+  "sindicato": "Sindicato Pedro Domingo Murillo",
+  "numero_linea": "751",
+  "origen": "Col. Cristal 1",
   "destino": "Calle 2",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
@@ -12,7 +12,7 @@
   "horario_inicio": "05:30",
   "horario_fin": "22:00",
   "tipos_vehiculo": [
-    "Minibús"
+    "Minibus"
   ],
   "paradas": [
     {

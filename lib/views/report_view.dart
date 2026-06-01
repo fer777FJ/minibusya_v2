@@ -1,12 +1,15 @@
 // lib/views/report_view.dart
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 import '../controllers/database_helper.dart';
+import '../controllers/mapa_controller.dart';
 import '../models/ruta_model.dart';
 import '../utils/app_theme.dart';
+import '../controllers/reporte_service.dart';
 
 class ReportView extends StatefulWidget {
-  const ReportView({super.key});
+  final MapaController? mapaController;
+
+  const ReportView({super.key, this.mapaController});
 
   @override
   State<ReportView> createState() => _ReportViewState();
@@ -15,6 +18,7 @@ class ReportView extends StatefulWidget {
 class _ReportViewState extends State<ReportView> {
   final DatabaseHelper _db = DatabaseHelper();
   final TextEditingController _descripcionCtrl = TextEditingController();
+  late MapaController _mapaCtrl;
 
   TipoReporte? _tipoSeleccionado;
   bool _enviando = false;
@@ -50,6 +54,18 @@ class _ReportViewState extends State<ReportView> {
     ),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _mapaCtrl = widget.mapaController ?? MapaController();
+  }
+
+  @override
+  void dispose() {
+    _descripcionCtrl.dispose();
+    super.dispose();
+  }
+
   Future<void> _enviarReporte() async {
     if (_tipoSeleccionado == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -61,25 +77,30 @@ class _ReportViewState extends State<ReportView> {
     setState(() => _enviando = true);
 
     try {
-      await _db.guardarReportePendiente({
-        'id': const Uuid().v4(),
-        'tipo': _tipoSeleccionado!.name,
-        // TODO: obtener lat/lng del controlador de mapa
-        'lat': -16.4955,
-        'lng': -68.1337,
-        'descripcion': _descripcionCtrl.text.trim().isEmpty
+      // Obtener ubicación del usuario o usar valor por defecto
+      final ubicacion = _mapaCtrl.ubicacionUsuario;
+      final lat = ubicacion?.latitude ?? -16.4955;
+      final lng = ubicacion?.longitude ?? -68.1337;
+
+      final enviado = await ReporteService().enviarReporte(
+        tipo: _tipoSeleccionado!,
+        lat: lat,
+        lng: lng,
+        descripcion: _descripcionCtrl.text.trim().isEmpty
             ? null
             : _descripcionCtrl.text.trim(),
-        'timestamp': DateTime.now().toIso8601String(),
-        'ruta_afectada_id': null,
-        'enviado': 0,
-      });
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Reporte guardado. Se enviará cuando haya conexión.'),
-            backgroundColor: AppTheme.verdeOk,
+          SnackBar(
+            content: Text(
+              enviado
+                  ? '✅ Reporte enviado a la comunidad'
+                  : '📴 Sin internet — se enviará cuando tengas conexión',
+            ),
+            backgroundColor:
+                enviado ? AppTheme.verdeOk : AppTheme.naranjaDesvio,
           ),
         );
         Navigator.pop(context);
@@ -153,19 +174,15 @@ class _ReportViewState extends State<ReportView> {
               children: _tiposReporte.map((t) {
                 final seleccionado = _tipoSeleccionado == t.tipo;
                 return GestureDetector(
-                  onTap: () =>
-                      setState(() => _tipoSeleccionado = t.tipo),
+                  onTap: () => setState(() => _tipoSeleccionado = t.tipo),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     decoration: BoxDecoration(
-                      color: seleccionado
-                          ? t.color
-                          : t.color.withOpacity(0.1),
+                      color: seleccionado ? t.color : t.color.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: seleccionado
-                            ? t.color
-                            : t.color.withOpacity(0.3),
+                        color:
+                            seleccionado ? t.color : t.color.withOpacity(0.3),
                         width: seleccionado ? 2.5 : 1,
                       ),
                       boxShadow: seleccionado
@@ -191,9 +208,7 @@ class _ReportViewState extends State<ReportView> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
-                            color: seleccionado
-                                ? Colors.white
-                                : t.color,
+                            color: seleccionado ? Colors.white : t.color,
                           ),
                         ),
                         Text(
@@ -253,8 +268,7 @@ class _ReportViewState extends State<ReportView> {
                     SizedBox(width: 8),
                     Text(
                       'Ubicación GPS capturada',
-                      style: TextStyle(
-                          color: AppTheme.grisTexto, fontSize: 13),
+                      style: TextStyle(color: AppTheme.grisTexto, fontSize: 13),
                     ),
                   ],
                 ),

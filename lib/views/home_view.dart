@@ -9,6 +9,8 @@ import '../utils/app_theme.dart';
 import '../widgets/letrero_widget.dart';
 import 'search_results_view.dart';
 import 'report_view.dart';
+import 'reportes_historial_view.dart';
+import 'reportes_comunitarios_view.dart';
 import 'favoritos_view.dart';
 import 'historial_view.dart';
 import 'configuracion_view.dart';
@@ -30,15 +32,28 @@ class _HomeViewState extends State<HomeView> {
   bool _mostrarOffline =
       false; // ← false = OSM online, true = tiles offline (MOBAC)
 
+  // ─── FILTROS DE TIPO DE VEHÍCULO ──────────────────────────────────────
+  Set<String> _tiposDisponibles = {}; // Tipos que existen en las rutas
+  Set<String> _tiposSeleccionados = {'Minibus'}; // Por defecto, Minibus activo
+
   @override
   void initState() {
     super.initState();
-    _cargarRutas();
+    _cargarRutasYFiltros();
     _mapaCtrl.obtenerUbicacion();
   }
 
-  Future<void> _cargarRutas() async {
-    final rutas = await _rutasCtrl.cargarTodasLasRutas();
+  Future<void> _cargarRutasYFiltros() async {
+    // Cargar tipos disponibles
+    final tipos = await _rutasCtrl.obtenerTiposDisponibles();
+    setState(() => _tiposDisponibles = tipos);
+
+    // Cargar rutas filtradas
+    await _aplicarFiltros();
+  }
+
+  Future<void> _aplicarFiltros() async {
+    final rutas = await _rutasCtrl.filtrarPorTipo(_tiposSeleccionados.toList());
     if (mounted) setState(() => _rutasVisibles = rutas);
   }
 
@@ -61,7 +76,11 @@ class _HomeViewState extends State<HomeView> {
       body: Stack(
         children: [
           // ─── MAPA PRINCIPAL ───────────────────────────────────────────────
-          _buildMapa(),
+          // Envuelto en AnimatedBuilder para que se reconstruya cuando cambia la ubicación
+          AnimatedBuilder(
+            animation: _mapaCtrl,
+            builder: (_, __) => _buildMapa(),
+          ),
 
           // ─── BARRA DE BÚSQUEDA FLOTANTE (parte superior) ─────────────────
           Positioned(
@@ -101,7 +120,7 @@ class _HomeViewState extends State<HomeView> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ReportView()),
+          MaterialPageRoute(builder: (_) => ReportView(mapaController: _mapaCtrl)),
         ),
         tooltip: 'Reportar incidente',
         child: const Icon(Icons.warning_amber_rounded),
@@ -255,7 +274,7 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       Text(
                         ruta.sindicato,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppTheme.grisTexto,
                           fontSize: 13,
                         ),
@@ -292,7 +311,7 @@ class _HomeViewState extends State<HomeView> {
         onSubmitted: _onSearchSubmit,
         decoration: InputDecoration(
           hintText: '¿A dónde vas?',
-          hintStyle: TextStyle(color: AppTheme.grisTexto),
+          hintStyle: const TextStyle(color: AppTheme.grisTexto),
           prefixIcon: Builder(
             builder: (ctx) => IconButton(
               icon: const Icon(Icons.menu),
@@ -328,19 +347,47 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildBotonUbicacion() {
     return AnimatedBuilder(
       animation: _mapaCtrl,
-      builder: (_, __) => FloatingActionButton.small(
-        heroTag: 'ubicacion',
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.azulPrimario,
-        onPressed: _mapaCtrl.obtenerUbicacion,
-        child: _mapaCtrl.cargandoUbicacion
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : const Icon(Icons.my_location),
-      ),
+      builder: (_, __) {
+        final cargando = _mapaCtrl.cargandoUbicacion;
+        final conUbicacion = _mapaCtrl.ubicacionUsuario != null;
+        
+        return FloatingActionButton.small(
+          heroTag: 'ubicacion',
+          backgroundColor: Colors.white,
+          foregroundColor: conUbicacion ? AppTheme.verdeOk : AppTheme.azulPrimario,
+          onPressed: cargando ? null : _mapaCtrl.obtenerUbicacion,
+          // Efecto visual: sombra más pronunciada cuando tiene ubicación
+          elevation: conUbicacion ? 8 : 2,
+          child: cargando
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.azulPrimario),
+                  ),
+                )
+              : Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Pulse background cuando tiene ubicación
+                    if (conUbicacion)
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppTheme.verdeOk.withOpacity(0.2),
+                          ),
+                        ),
+                      ),
+                    Icon(
+                      conUbicacion ? Icons.location_on : Icons.my_location,
+                      size: conUbicacion ? 20 : 22,
+                    ),
+                  ],
+                ),
+        );
+      },
     );
   }
 
@@ -366,16 +413,86 @@ class _HomeViewState extends State<HomeView> {
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildFiltroChip('Minibús', Icons.directions_bus, true),
-              _buildFiltroChip('Trufi', Icons.local_taxi, false),
-              _buildFiltroChip('Micro', Icons.directions_bus_filled, false),
-              _buildFiltroChip(
-                  'PumaKatari', Icons.directions_bus_rounded, false),
-            ],
+          Expanded(
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                _buildFiltroChipInteractivo('Minibus', Icons.directions_bus),
+                _buildFiltroChipInteractivo('Trufi', Icons.local_taxi),
+                _buildFiltroChipInteractivo('Micro', Icons.directions_bus_filled),
+                _buildFiltroChipInteractivo('PumaKatari', Icons.directions_bus_rounded),
+              ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFiltroChipInteractivo(String label, IconData icon) {
+    final seleccionado = _tiposSeleccionados.contains(label);
+    // Solo mostrar si el tipo está disponible en las rutas
+    final disponible = _tiposDisponibles.contains(label);
+
+    if (!disponible) {
+      return const SizedBox.shrink(); // No mostrar si no hay rutas
+    }
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (seleccionado) {
+            _tiposSeleccionados.remove(label);
+          } else {
+            _tiposSeleccionados.add(label);
+          }
+        });
+        _aplicarFiltros();
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: seleccionado ? AppTheme.azulPrimario : AppTheme.blancoFondo,
+              boxShadow: seleccionado
+                  ? [
+                      BoxShadow(
+                        color: AppTheme.azulPrimario.withOpacity(0.3),
+                        blurRadius: 8,
+                        spreadRadius: 2,
+                      )
+                    ]
+                  : null,
+            ),
+            child: Icon(
+              icon,
+              color: seleccionado ? Colors.white : AppTheme.grisTexto,
+              size: 22,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              color: seleccionado ? AppTheme.azulPrimario : AppTheme.grisTexto,
+              fontWeight: seleccionado ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          if (_tiposSeleccionados.isEmpty)
+            Text(
+              '(sin filtro)',
+              style: TextStyle(
+                fontSize: 8,
+                color: Colors.grey[400],
+                fontStyle: FontStyle.italic,
+              ),
+            ),
         ],
       ),
     );
@@ -432,7 +549,7 @@ class _HomeViewState extends State<HomeView> {
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                   Text(
                     '${ruta.origen} → ${ruta.destino}',
-                    style: TextStyle(fontSize: 12, color: AppTheme.grisTexto),
+                    style: const TextStyle(fontSize: 12, color: AppTheme.grisTexto),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -440,7 +557,7 @@ class _HomeViewState extends State<HomeView> {
                     'Bs. ${ruta.tarifaNormal.toStringAsFixed(1)} normal  •  '
                     'Bs. ${ruta.tarifaEstudiantil.toStringAsFixed(1)} estudiante',
                     style:
-                        TextStyle(fontSize: 11, color: AppTheme.azulPrimario),
+                        const TextStyle(fontSize: 11, color: AppTheme.azulPrimario),
                   ),
                 ],
               ),
@@ -461,12 +578,12 @@ class _HomeViewState extends State<HomeView> {
     return Drawer(
       child: ListView(
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(color: AppTheme.azulPrimario),
+          const DrawerHeader(
+            decoration: BoxDecoration(color: AppTheme.azulPrimario),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
-              children: const [
+              children: [
                 Icon(Icons.directions_bus, color: Colors.white, size: 40),
                 SizedBox(height: 8),
                 Text(
@@ -504,6 +621,25 @@ class _HomeViewState extends State<HomeView> {
               Navigator.pop(context);
               Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const HistorialView()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.warning_outlined),
+            title: const Text('Mis Reportes'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const ReportesHistorialView()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.public),
+            title: const Text('Reportes de la Comunidad'),
+            subtitle: const Text('Reportes activos en tiempo real', style: TextStyle(fontSize: 11)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const ReportesComunitariosView()));
             },
           ),
           ListTile(

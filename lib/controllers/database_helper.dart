@@ -137,8 +137,7 @@ class DatabaseHelper {
     final db = await database;
     return db.query(
       'reportes_pendientes',
-      where: 'enviado = ?',
-      whereArgs: [0],
+      orderBy: 'timestamp DESC',
     );
   }
 }

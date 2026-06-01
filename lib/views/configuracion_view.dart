@@ -55,7 +55,7 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
             title: const Text('Modo Offline'),
             subtitle: const Text('Usa tiles descargados, sin internet'),
             value: _modoOffline,
-            activeColor: AppTheme.azulPrimario,
+            activeThumbColor: AppTheme.azulPrimario,
             onChanged: (v) {
               setState(() => _modoOffline = v);
               _guardar('modo_offline', v);
@@ -71,7 +71,7 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
             subtitle: const Text(
                 'Muestra la tarifa estudiantil como principal'),
             value: _mostrarTarifaEstudiante,
-            activeColor: AppTheme.azulPrimario,
+            activeThumbColor: AppTheme.azulPrimario,
             onChanged: (v) {
               setState(() => _mostrarTarifaEstudiante = v);
               _guardar('tarifa_estudiante', v);
@@ -83,7 +83,7 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
           _seccion('Mostrar en el mapa'),
           CheckboxListTile(
             secondary: const Icon(Icons.directions_bus),
-            title: const Text('Minibús'),
+            title: const Text('Minibus'),
             value: _mostrarMinibus,
             activeColor: AppTheme.azulPrimario,
             onChanged: (v) {

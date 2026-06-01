@@ -11,7 +11,7 @@
   "tarifa_nocturna": 2.5,
   "horario_inicio": "06:00",
   "horario_fin": "21:30",
-  "tipos_vehiculo": ["Minibús", "Trufi"],
+  "tipos_vehiculo": ["Minibus", "Trufi"],
   "paradas": [
     {
       "id": "102_p01",
