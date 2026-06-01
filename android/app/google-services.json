@@ -1,28 +1,22 @@
 {
   "project_info": {
-    "project_number": "1066783629311",
-    "project_id": "minibus-ya-a20db",
-    "storage_bucket": "minibus-ya-a20db.firebasestorage.app"
+    "project_number": "XXXXXXXXXX",
+    "project_id": "tu-proyecto-firebase",
+    "storage_bucket": "tu-proyecto.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1066783629311:android:66d379854c10e75ee6d1ca",
+        "mobilesdk_app_id": "1:XXXXXXXXXX:android:XXXXXXXXXX",
         "android_client_info": {
           "package_name": "bo.edu.unifranz.minibus_ya"
         }
       },
-      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCuKCXTnqmx4tKRUTSBstgu5OASjpW8KwA"
+          "current_key": "REEMPLAZAR_CON_TU_API_KEY_REAL"
         }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
+      ]
     }
   ],
   "configuration_version": "1"

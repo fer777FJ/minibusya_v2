@@ -1,8 +1,2 @@
-# Firebase - nunca subir a GitHub
-android/app/google-services.json
-ios/Runner/GoogleService-Info.plist
 
-# Claves y certificados
-*.keystore
-*.jks
-*.env
+**/*
