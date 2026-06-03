@@ -74,8 +74,7 @@ class _HistorialViewState extends State<HistorialView> {
                   SizedBox(height: 16),
                   Text(
                     'Sin búsquedas recientes',
-                    style: TextStyle(
-                        fontSize: 16, color: AppTheme.grisTexto),
+                    style: TextStyle(fontSize: 16, color: AppTheme.grisTexto),
                   ),
                 ],
               ),
@@ -87,8 +86,7 @@ class _HistorialViewState extends State<HistorialView> {
               itemBuilder: (_, i) {
                 final texto = _historial[i];
                 return ListTile(
-                  leading: const Icon(Icons.history,
-                      color: AppTheme.grisTexto),
+                  leading: const Icon(Icons.history, color: AppTheme.grisTexto),
                   title: Text(texto),
                   trailing: const Icon(Icons.north_west,
                       size: 16, color: AppTheme.grisTexto),

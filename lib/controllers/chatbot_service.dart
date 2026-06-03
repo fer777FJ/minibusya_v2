@@ -9,7 +9,7 @@ class ChatbotService {
   ChatbotService._internal();
 
   // API key de Gemini
-  static const String _apiKey = 'AQUI_LA_API_KEY';
+  static const String _apiKey = 'AQUI_MI_API_KEY';
 
   final RutasController _rutasCtrl = RutasController();
   ChatSession? _sesion;
@@ -74,7 +74,7 @@ INSTRUCCIONES:
     try {
       await inicializar();
 
-      if (_apiKey == 'TU_API_KEY_DE_GEMINI') {
+      if (_apiKey == 'AQUI_MI_API_KEY_DE_GEMINI') {
         return '❌ Error de configuración: API key no configurada. El administrador debe agregar una API key válida de Google Gemini.';
       }
 

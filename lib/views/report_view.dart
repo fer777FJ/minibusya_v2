@@ -74,18 +74,47 @@ class _ReportViewState extends State<ReportView> {
       return;
     }
 
+    // ── Validar que la ubicación GPS esté activa y encontrada ──
+    final ubicacion = _mapaCtrl.ubicacionUsuario;
+    if (ubicacion == null) {
+      // Mostrar diálogo informativo
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          icon: const Icon(Icons.location_off,
+              size: 48, color: AppTheme.rojoAlerta),
+          title: const Text('Ubicación no disponible'),
+          content: const Text(
+            'Para enviar un reporte necesitamos tu ubicación GPS.\n\n'
+            'Activa el GPS de tu dispositivo y presiona "Obtener ubicación" '
+            'para continuar.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                _mapaCtrl.obtenerUbicacion();
+              },
+              icon: const Icon(Icons.my_location),
+              label: const Text('Obtener ubicación'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     setState(() => _enviando = true);
 
     try {
-      // Obtener ubicación del usuario o usar valor por defecto
-      final ubicacion = _mapaCtrl.ubicacionUsuario;
-      final lat = ubicacion?.latitude ?? -16.4955;
-      final lng = ubicacion?.longitude ?? -68.1337;
-
       final enviado = await ReporteService().enviarReporte(
         tipo: _tipoSeleccionado!,
-        lat: lat,
-        lng: lng,
+        lat: ubicacion.latitude,
+        lng: ubicacion.longitude,
         descripcion: _descripcionCtrl.text.trim().isEmpty
             ? null
             : _descripcionCtrl.text.trim(),
@@ -96,8 +125,8 @@ class _ReportViewState extends State<ReportView> {
           SnackBar(
             content: Text(
               enviado
-                  ? '✅ Reporte enviado a la comunidad'
-                  : '📴 Sin internet — se enviará cuando tengas conexión',
+                  ? '✅ Reporte enviado a la comunidad y guardado localmente'
+                  : '📴 Sin internet — reporte guardado en tu dispositivo, se enviará cuando tengas conexión',
             ),
             backgroundColor:
                 enviado ? AppTheme.verdeOk : AppTheme.naranjaDesvio,

@@ -140,4 +140,15 @@ class DatabaseHelper {
       orderBy: 'timestamp DESC',
     );
   }
+
+  /// Marca un reporte local como enviado a Firestore
+  Future<void> marcarEnviado(String reporteId) async {
+    final db = await database;
+    await db.update(
+      'reportes_pendientes',
+      {'enviado': 1},
+      where: 'id = ?',
+      whereArgs: [reporteId],
+    );
+  }
 }

@@ -21,7 +21,7 @@ class RutasController {
     'assets/rutas/linea_102_miraflores.json',
     'assets/rutas/linea_001.json',
     'assets/rutas/linea_101.json',
-    'assets/rutas/linea_105.json',
+    'assets/rutas/linea_105_t.json',
     'assets/rutas/linea_112.json',
     'assets/rutas/linea_280.json',
     'assets/rutas/linea_281.json',
@@ -89,7 +89,8 @@ class RutasController {
   }
 
   /// Retorna las rutas que pasan por un radio alrededor de una coordenada GPS
-  Future<List<RutaModel>> rutasCercanas(LatLng punto, {double radioKm = 0.3}) async {
+  Future<List<RutaModel>> rutasCercanas(LatLng punto,
+      {double radioKm = 0.3}) async {
     final rutas = await cargarTodasLasRutas();
     const distance = Distance();
 
@@ -123,7 +124,8 @@ class RutasController {
 
   /// Filtra rutas por tipo de vehículo
   /// Si [tiposSeleccionados] está vacío, retorna todas las rutas
-  Future<List<RutaModel>> filtrarPorTipo(List<String> tiposSeleccionados) async {
+  Future<List<RutaModel>> filtrarPorTipo(
+      List<String> tiposSeleccionados) async {
     final rutas = await cargarTodasLasRutas();
 
     if (tiposSeleccionados.isEmpty) {

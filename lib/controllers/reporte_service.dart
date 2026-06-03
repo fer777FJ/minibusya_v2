@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import '../models/ruta_model.dart';
 import 'database_helper.dart';
 
 /// Maneja el envío de reportes a Firestore.
-/// Si no hay internet, guarda en SQLite y reintenta después.
+/// SIEMPRE guarda en SQLite local + envía a Firestore si hay internet.
 class ReporteService {
   static final ReporteService _instance = ReporteService._internal();
   factory ReporteService() => _instance;
@@ -13,7 +14,8 @@ class ReporteService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final DatabaseHelper _db = DatabaseHelper();
 
-  /// Envía un reporte — online va a Firestore, offline queda en SQLite
+  /// Envía un reporte — SIEMPRE se guarda en SQLite local.
+  /// Si hay internet, también se envía a Firestore y se marca como enviado.
   Future<bool> enviarReporte({
     required TipoReporte tipo,
     required double lat,
@@ -21,7 +23,10 @@ class ReporteService {
     String? descripcion,
     String? rutaAfectadaId,
   }) async {
+    final reporteId = DateTime.now().millisecondsSinceEpoch.toString();
+
     final reporte = {
+      'id': reporteId,
       'tipo': tipo.name,
       'lat': lat,
       'lng': lng,
@@ -31,52 +36,52 @@ class ReporteService {
       'enviado': 0,
     };
 
-    // Verificar conexión
+    // 1️⃣ SIEMPRE guardar en SQLite local (para "Mis Reportes")
+    await _db.guardarReportePendiente(reporte);
+    debugPrint('💾 Reporte $reporteId guardado localmente');
+
+    // 2️⃣ Intentar enviar a Firestore si hay internet
     final conectividad = await Connectivity().checkConnectivity();
-    final tieneInternet = conectividad != ConnectivityResult.none;
+    final tieneInternet = !conectividad.contains(ConnectivityResult.none);
 
     if (tieneInternet) {
       try {
-        // Enviar directamente a Firestore
         await _firestore.collection('reportes').add({
-          ...reporte,
+          'tipo': tipo.name,
+          'lat': lat,
+          'lng': lng,
+          'descripcion': descripcion,
+          'ruta_afectada_id': rutaAfectadaId,
           'timestamp': FieldValue.serverTimestamp(),
-          'enviado': 1,
         });
-        print('✅ Reporte enviado a Firestore');
+        // Marcar como enviado en SQLite
+        await _db.marcarEnviado(reporteId);
+        debugPrint('✅ Reporte $reporteId enviado a Firestore');
         return true;
       } catch (e) {
-        print('❌ Error enviando a Firestore: $e');
-        // Si falla, guardar local como respaldo
-        await _guardarLocal(reporte);
+        debugPrint('❌ Error enviando a Firestore: $e');
+        // Se queda como pendiente en SQLite
         return false;
       }
     } else {
-      // Sin internet — guardar local y sincronizar después
-      await _guardarLocal(reporte);
-      print('📴 Sin internet — reporte guardado localmente');
+      debugPrint('📴 Sin internet — reporte guardado solo localmente');
       return false;
     }
-  }
-
-  Future<void> _guardarLocal(Map<String, dynamic> reporte) async {
-    await _db.guardarReportePendiente({
-      'id': DateTime.now().millisecondsSinceEpoch.toString(),
-      ...reporte,
-    });
   }
 
   /// Sincroniza los reportes pendientes cuando hay internet
   Future<void> sincronizarPendientes() async {
     final conectividad = await Connectivity().checkConnectivity();
-    if (conectividad == ConnectivityResult.none) return;
+    if (conectividad.contains(ConnectivityResult.none)) return;
 
     final pendientes = await _db.obtenerReportesPendientes();
-    if (pendientes.isEmpty) return;
+    // Filtrar solo los no enviados
+    final noEnviados = pendientes.where((r) => (r['enviado'] as int?) == 0).toList();
+    if (noEnviados.isEmpty) return;
 
-    print('🔄 Sincronizando ${pendientes.length} reportes pendientes...');
+    debugPrint('🔄 Sincronizando ${noEnviados.length} reportes pendientes...');
 
-    for (final reporte in pendientes) {
+    for (final reporte in noEnviados) {
       try {
         await _firestore.collection('reportes').add({
           'tipo': reporte['tipo'],
@@ -85,13 +90,12 @@ class ReporteService {
           'descripcion': reporte['descripcion'],
           'ruta_afectada_id': reporte['ruta_afectada_id'],
           'timestamp': FieldValue.serverTimestamp(),
-          'enviado': 1,
         });
         // Marcar como enviado en SQLite
-        // TODO: agregar método marcarEnviado en DatabaseHelper
-        print('✅ Reporte ${reporte['id']} sincronizado');
+        await _db.marcarEnviado(reporte['id'] as String);
+        debugPrint('✅ Reporte ${reporte['id']} sincronizado');
       } catch (e) {
-        print('❌ Error sincronizando ${reporte['id']}: $e');
+        debugPrint('❌ Error sincronizando ${reporte['id']}: $e');
       }
     }
   }
@@ -107,12 +111,11 @@ class ReporteService {
           .limit(limite)
           .get();
 
-      return snapshot.docs.map((doc) => {
-        'id': doc.id,
-        ...doc.data(),
+      return snapshot.docs.map((doc) {
+        return {'id': doc.id, ...doc.data()};
       }).toList();
     } catch (e) {
-      print('❌ Error obteniendo reportes: $e');
+      debugPrint('❌ Error obteniendo reportes: $e');
       return [];
     }
   }
@@ -130,10 +133,9 @@ class ReporteService {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.map((doc) => {
-            'id': doc.id,
-            ...doc.data(),
+          return snapshot.docs.map((doc) {
+            return {'id': doc.id, ...doc.data()};
           }).toList();
         });
   }
-}
+}
