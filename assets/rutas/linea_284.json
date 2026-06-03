@@ -1,0 +1,117 @@
+{
+  "id": "linea_284",
+  "sindicato": "Sindicato Distrito 14",
+  "numero_linea": "284",
+  "origen": "Punto fin de ruta - Bautista Saavedra",
+  "destino": "Punto Inicio de Ruta -  Ex  Parada 8",
+  "color_hex": "#0D47A1",
+  "color_texto_hex": "#FFFFFF",
+  "tarifa_normal": 2.0,
+  "tarifa_estudiantil": 1.5,
+  "tarifa_nocturna": 2.5,
+  "horario_inicio": "07:30",
+  "horario_fin": "22:00",
+  "tipos_vehiculo": [
+    "Minibus"
+  ],
+  "paradas": [
+    {
+      "id": "linea_284_p01",
+      "nombre": "Punto fin de ruta - Bautista Saavedra",
+      "lat": -16.488195,
+      "lng": -68.232402,
+      "es_terminal": true,
+      "orden_en_ruta": 1
+    },
+    {
+      "id": "linea_284_p02",
+      "nombre": "Punto de refrerencia - U. E. Cruz Andina",
+      "lat": -16.486343,
+      "lng": -68.232483,
+      "es_terminal": false,
+      "orden_en_ruta": 2
+    },
+    {
+      "id": "linea_284_p03",
+      "nombre": "Punto Inicio de Ruta -  Ex  Parada 8",
+      "lat": -16.485664,
+      "lng": -68.228349,
+      "es_terminal": true,
+      "orden_en_ruta": 3
+    }
+  ],
+  "coordenadas": [
+    {
+      "lat": -16.485653805787095,
+      "lng": -68.22834969347821
+    },
+    {
+      "lat": -16.485551719040085,
+      "lng": -68.22880638509606
+    },
+    {
+      "lat": -16.48544963229308,
+      "lng": -68.2292630767139
+    },
+    {
+      "lat": -16.48534754554607,
+      "lng": -68.22971976833176
+    },
+    {
+      "lat": -16.485245458799064,
+      "lng": -68.2301764599496
+    },
+    {
+      "lat": -16.485143372052054,
+      "lng": -68.23063315156746
+    },
+    {
+      "lat": -16.485041285305048,
+      "lng": -68.2310898431853
+    },
+    {
+      "lat": -16.48493919855804,
+      "lng": -68.23154653480316
+    },
+    {
+      "lat": -16.484837111811032,
+      "lng": -68.232003226421
+    },
+    {
+      "lat": -16.484735025064023,
+      "lng": -68.23245991803886
+    },
+    {
+      "lat": -16.484724,
+      "lng": -68.232527
+    },
+    {
+      "lat": -16.484736,
+      "lng": -68.232537
+    },
+    {
+      "lat": -16.484833,
+      "lng": -68.232547
+    },
+    {
+      "lat": -16.485042,
+      "lng": -68.232543
+    },
+    {
+      "lat": -16.486319,
+      "lng": -68.232483
+    },
+    {
+      "lat": -16.486756,
+      "lng": -68.232471
+    },
+    {
+      "lat": -16.487223,
+      "lng": -68.232459
+    },
+    {
+      "lat": -16.488185,
+      "lng": -68.232401
+    }
+  ]
+}

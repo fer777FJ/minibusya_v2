@@ -1,5 +1,5 @@
 {
-  "id": "linea_000",
+  "id": "linea_751",
   "sindicato": "Sindicato Pedro Domingo Murillo",
   "numero_linea": "751",
   "origen": "Col. Cristal 1",
@@ -16,60 +16,68 @@
   ],
   "paradas": [
     {
-      "id": "linea_000_p01",
-      "nombre": "Col. Jose Manuel Pando",
-      "lat": -16.565536,
-      "lng": -68.184151,
+      "id": "linea_751_p01",
+      "nombre": "Cristal 1",
+      "lat": -16.594621,
+      "lng": -68.20179,
       "es_terminal": true,
       "orden_en_ruta": 1
     },
     {
-      "id": "linea_000_p02",
-      "nombre": "Senkata",
-      "lat": -16.580992,
-      "lng": -68.185101,
+      "id": "linea_751_p02",
+      "nombre": "Col. Jose Manuel Pando",
+      "lat": -16.565536,
+      "lng": -68.184151,
       "es_terminal": false,
       "orden_en_ruta": 2
     },
     {
-      "id": "linea_000_p03",
-      "nombre": "Molino Andino",
-      "lat": -16.555129,
-      "lng": -68.17994,
+      "id": "linea_751_p03",
+      "nombre": "Senkata",
+      "lat": -16.580992,
+      "lng": -68.185101,
       "es_terminal": false,
       "orden_en_ruta": 3
     },
     {
-      "id": "linea_000_p04",
-      "nombre": "Puente Bolivia Av. 6 de Marzo",
-      "lat": -16.545447,
-      "lng": -68.176748,
+      "id": "linea_751_p04",
+      "nombre": "Molino Andino",
+      "lat": -16.555129,
+      "lng": -68.17994,
       "es_terminal": false,
       "orden_en_ruta": 4
     },
     {
-      "id": "linea_000_p05",
-      "nombre": "Taquiña",
-      "lat": -16.540638,
-      "lng": -68.175101,
+      "id": "linea_751_p05",
+      "nombre": "Puente Bolivia Av. 6 de Marzo",
+      "lat": -16.545447,
+      "lng": -68.176748,
       "es_terminal": false,
       "orden_en_ruta": 5
     },
     {
-      "id": "linea_000_p06",
-      "nombre": "Teleferico Morado Av. 6 de Marzo",
-      "lat": -16.523303,
-      "lng": -68.169109,
+      "id": "linea_751_p06",
+      "nombre": "Taquiña",
+      "lat": -16.540638,
+      "lng": -68.175101,
       "es_terminal": false,
       "orden_en_ruta": 6
     },
     {
-      "id": "linea_000_p07",
+      "id": "linea_751_p07",
+      "nombre": "Teleferico Morado Av. 6 de Marzo",
+      "lat": -16.523303,
+      "lng": -68.169109,
+      "es_terminal": false,
+      "orden_en_ruta": 7
+    },
+    {
+      "id": "linea_751_p08",
       "nombre": "Calle 2",
       "lat": -16.50615,
       "lng": -68.163595,
       "es_terminal": true,
-      "orden_en_ruta": 7
+      "orden_en_ruta": 8
     }
   ],
   "coordenadas": [

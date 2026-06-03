@@ -14,6 +14,7 @@ import 'reportes_comunitarios_view.dart';
 import 'favoritos_view.dart';
 import 'historial_view.dart';
 import 'configuracion_view.dart';
+import 'chatbot_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -90,13 +91,6 @@ class _HomeViewState extends State<HomeView> {
             child: _buildSearchBar(),
           ),
 
-          // ─── BOTÓN DE UBICACIÓN ───────────────────────────────────────────
-          Positioned(
-            right: 12,
-            bottom: 140,
-            child: _buildBotonUbicacion(),
-          ),
-
           // ─── BOTTOM SHEET DE FILTROS ──────────────────────────────────────
           Positioned(
             bottom: 0,
@@ -113,17 +107,44 @@ class _HomeViewState extends State<HomeView> {
               right: 12,
               child: _buildRutaSeleccionadaCard(),
             ),
+
+          // ─── FAB CHATBOT (IZQUIERDA) ──────────────────────────────────────
+          Positioned(
+            bottom: 100,
+            left: 12,
+            child: FloatingActionButton(
+              heroTag: 'chatbot',
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ChatbotView()),
+              ),
+              backgroundColor: AppTheme.azulPrimario,
+              tooltip: 'Asistente de rutas',
+              child: const Icon(Icons.chat_outlined, color: Colors.white),
+            ),
+          ),
         ],
       ),
 
-      // FAB amarillo para reportar
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ReportView(mapaController: _mapaCtrl)),
-        ),
-        tooltip: 'Reportar incidente',
-        child: const Icon(Icons.warning_amber_rounded),
+      // FAB para ubicación y reporte (DERECHA)
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Botón ubicación
+          _buildBotonUbicacion(),
+          const SizedBox(height: 12),
+          // Botón reporte
+          FloatingActionButton(
+            heroTag: 'reporte',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => ReportView(mapaController: _mapaCtrl)),
+            ),
+            tooltip: 'Reportar incidente',
+            child: const Icon(Icons.warning_amber_rounded),
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -350,11 +371,12 @@ class _HomeViewState extends State<HomeView> {
       builder: (_, __) {
         final cargando = _mapaCtrl.cargandoUbicacion;
         final conUbicacion = _mapaCtrl.ubicacionUsuario != null;
-        
+
         return FloatingActionButton.small(
           heroTag: 'ubicacion',
           backgroundColor: Colors.white,
-          foregroundColor: conUbicacion ? AppTheme.verdeOk : AppTheme.azulPrimario,
+          foregroundColor:
+              conUbicacion ? AppTheme.verdeOk : AppTheme.azulPrimario,
           onPressed: cargando ? null : _mapaCtrl.obtenerUbicacion,
           // Efecto visual: sombra más pronunciada cuando tiene ubicación
           elevation: conUbicacion ? 8 : 2,
@@ -364,7 +386,8 @@ class _HomeViewState extends State<HomeView> {
                   height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.azulPrimario),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(AppTheme.azulPrimario),
                   ),
                 )
               : Stack(
@@ -420,8 +443,10 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 _buildFiltroChipInteractivo('Minibus', Icons.directions_bus),
                 _buildFiltroChipInteractivo('Trufi', Icons.local_taxi),
-                _buildFiltroChipInteractivo('Micro', Icons.directions_bus_filled),
-                _buildFiltroChipInteractivo('PumaKatari', Icons.directions_bus_rounded),
+                _buildFiltroChipInteractivo(
+                    'Micro', Icons.directions_bus_filled),
+                _buildFiltroChipInteractivo(
+                    'PumaKatari', Icons.directions_bus_rounded),
               ],
             ),
           ),
@@ -458,7 +483,8 @@ class _HomeViewState extends State<HomeView> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: seleccionado ? AppTheme.azulPrimario : AppTheme.blancoFondo,
+              color:
+                  seleccionado ? AppTheme.azulPrimario : AppTheme.blancoFondo,
               boxShadow: seleccionado
                   ? [
                       BoxShadow(
@@ -549,15 +575,16 @@ class _HomeViewState extends State<HomeView> {
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                   Text(
                     '${ruta.origen} → ${ruta.destino}',
-                    style: const TextStyle(fontSize: 12, color: AppTheme.grisTexto),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppTheme.grisTexto),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     'Bs. ${ruta.tarifaNormal.toStringAsFixed(1)} normal  •  '
                     'Bs. ${ruta.tarifaEstudiantil.toStringAsFixed(1)} estudiante',
-                    style:
-                        const TextStyle(fontSize: 11, color: AppTheme.azulPrimario),
+                    style: const TextStyle(
+                        fontSize: 11, color: AppTheme.azulPrimario),
                   ),
                 ],
               ),
@@ -628,18 +655,23 @@ class _HomeViewState extends State<HomeView> {
             title: const Text('Mis Reportes'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const ReportesHistorialView()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const ReportesHistorialView()));
             },
           ),
           ListTile(
             leading: const Icon(Icons.public),
             title: const Text('Reportes de la Comunidad'),
-            subtitle: const Text('Reportes activos en tiempo real', style: TextStyle(fontSize: 11)),
+            subtitle: const Text('Reportes activos en tiempo real',
+                style: TextStyle(fontSize: 11)),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const ReportesComunitariosView()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const ReportesComunitariosView()));
             },
           ),
           ListTile(
@@ -662,6 +694,19 @@ class _HomeViewState extends State<HomeView> {
               style: const TextStyle(fontSize: 12),
             ),
             onTap: () => setState(() => _mostrarOffline = !_mostrarOffline),
+          ),
+          ListTile(
+            leading:
+                const Icon(Icons.chat_outlined, color: AppTheme.azulPrimario),
+            title: const Text('Asistente MiniBus Bot'),
+            subtitle: const Text('Pregunta cómo llegar a tu destino'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ChatbotView()),
+              );
+            },
           ),
         ],
       ),

@@ -8,3 +8,6 @@ ios/Runner/GoogleService-Info.plist
 *.env
 .env.local
 .env.production
+
+# Archivos con API keys
+lib/controllers/chatbot_service.dart
