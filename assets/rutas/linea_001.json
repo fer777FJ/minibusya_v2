@@ -2,8 +2,8 @@
   "id": "linea_001",
   "sindicato": "Gobierno Autónomo Municipal de El Alto",
   "numero_linea": "001",
-  "origen": "fin de ruta - Cruce Layuri",
-  "destino": "Inicio de ruta - Calle 4 Ceja",
+  "origen": "Fin de tramo - Cruce Layuri",
+  "destino": "Fin de tramo - Calle 4 Ceja",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 1.5,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_000_p01",
-      "nombre": "fin de ruta - Cruce Layuri",
+      "nombre": "Fin de tramo - Cruce Layuri",
       "lat": -16.634111,
       "lng": -68.181413,
       "es_terminal": true,
@@ -137,7 +137,7 @@
     },
     {
       "id": "linea_000_p16",
-      "nombre": "Inicio de ruta - Calle 4 Ceja",
+      "nombre": "Fin de tramo - Calle 4 Ceja",
       "lat": -16.508197,
       "lng": -68.164315,
       "es_terminal": true,

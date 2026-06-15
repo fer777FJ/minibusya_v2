@@ -2,8 +2,8 @@
   "id": "linea_281",
   "sindicato": "Sindicato Distrito 14",
   "numero_linea": "281",
-  "origen": "Puente Rio Seco",
-  "destino": "Punto referencia Av. Colorados de Bolivia",
+  "origen": "Fin de tramo - Puente Rio Seco",
+  "destino": "Fin de tramo - Parada 8",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_281_p01",
-      "nombre": "Puente Rio Seco",
+      "nombre": "Fin de tramo - Puente Rio Seco",
       "lat": 0.0,
       "lng": 0.0,
       "es_terminal": true,
@@ -25,7 +25,7 @@
     },
     {
       "id": "linea_281_p02",
-      "nombre": "Puente Rio Seco",
+      "nombre": "punto de referenci - Puente Rio Seco",
       "lat": -16.490937,
       "lng": -68.202557,
       "es_terminal": false,
@@ -33,18 +33,18 @@
     },
     {
       "id": "linea_281_p03",
-      "nombre": "Puente Bolivia",
+      "nombre": "Fin de tramo - Parada 8",
       "lat": -16.505297,
       "lng": -68.211085,
-      "es_terminal": false,
+      "es_terminal": true,
       "orden_en_ruta": 3
     },
     {
       "id": "linea_281_p04",
-      "nombre": "Punto referencia Av. Colorados de Bolivia",
+      "nombre": "punto de referencia - Av. Colorados de Bolivia",
       "lat": -16.501394,
       "lng": -68.209249,
-      "es_terminal": true,
+      "es_terminal": false,
       "orden_en_ruta": 4
     }
   ],

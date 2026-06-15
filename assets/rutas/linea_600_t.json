@@ -2,8 +2,8 @@
   "id": "linea_600_t",
   "sindicato": "Sindicato Pedro Domingo Murillo",
   "numero_linea": "600",
-  "origen": "Senkata",
-  "destino": "Punto Inicio de Ruta",
+  "origen": "Fin de tramo Senkata",
+  "destino": "Fin de tramo - Parada 600",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_600_t_p01",
-      "nombre": "Senkata",
+      "nombre": "Fin de tramo Senkata",
       "lat": -16.587874,
       "lng": -68.189017,
       "es_terminal": true,
@@ -33,7 +33,7 @@
     },
     {
       "id": "linea_600_t_p03",
-      "nombre": "Punto Inicio de Ruta",
+      "nombre": "Fin de tramo - Parada 600",
       "lat": -16.596231,
       "lng": -68.190838,
       "es_terminal": true,

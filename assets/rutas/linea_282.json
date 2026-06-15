@@ -2,8 +2,8 @@
   "id": "linea_282",
   "sindicato": "Sindicato Distrito 14",
   "numero_linea": "282",
-  "origen": "de referencia - Fabrica de Vidrio",
-  "destino": "Fin de ruta -  Ex parada 8",
+  "origen": "Fin de tramo - Puente Rio Seco",
+  "destino": "Fin de tramo - Ex parada 8",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,10 +17,10 @@
   "paradas": [
     {
       "id": "linea_282_p01",
-      "nombre": "de referencia - Fabrica de Vidrio",
+      "nombre": "punto de referencia - Fabrica de Vidrio",
       "lat": -16.486624,
       "lng": -68.223751,
-      "es_terminal": true,
+      "es_terminal": false,
       "orden_en_ruta": 1
     },
     {
@@ -49,15 +49,15 @@
     },
     {
       "id": "linea_282_p05",
-      "nombre": "Inicio de ruta - Puente Rio Seco",
+      "nombre": "Fin de tramo - Puente Rio Seco",
       "lat": -16.490905,
       "lng": -68.202612,
-      "es_terminal": false,
+      "es_terminal": true,
       "orden_en_ruta": 5
     },
     {
       "id": "linea_282_p06",
-      "nombre": "Fin de ruta -  Ex parada 8",
+      "nombre": "Fin de tramo - Ex Parada 8",
       "lat": -16.485642,
       "lng": -68.228356,
       "es_terminal": true,

@@ -43,3 +43,22 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ─── API KEYS Y SECRETOS (nunca subir a GitHub) ────────────────────────────
+# Archivo con las claves reales — usa secrets.example.dart como plantilla
+lib/config/secrets.dart
+
+# Firebase — credenciales de la app
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Variables de entorno
+.env
+.env.local
+.env.production
+*.env
+
+# Certificados y keystores
+*.keystore
+*.jks
+key.properties

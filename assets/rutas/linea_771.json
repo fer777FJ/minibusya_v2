@@ -2,8 +2,8 @@
   "id": "linea_771",
   "sindicato": "Sindicato Villa Adela",
   "numero_linea": "771",
-  "origen": "Fin de ruta - Cruce Av. Ladislao Cabrera, Avenida Litoral",
-  "destino": "Inicio de ruta - Cruce Viacha",
+  "origen": "Fin de tramo - Cruce Av. Ladislao Cabrera, Avenida Litoral",
+  "destino": "Fin de tramo - Cruce Viacha",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_771_p01",
-      "nombre": "Fin de ruta - Cruce Av. Ladislao Cabrera, Avenida Litoral",
+      "nombre": "Fin de tramo - Cruce Av. Ladislao Cabrera, Avenida Litoral",
       "lat": -16.54277,
       "lng": -68.198282,
       "es_terminal": true,
@@ -65,7 +65,7 @@
     },
     {
       "id": "linea_771_p07",
-      "nombre": "Inicio de ruta - Cruce Viacha",
+      "nombre": "Fin de tramo - Cruce Viacha",
       "lat": -16.515949,
       "lng": -68.166869,
       "es_terminal": true,

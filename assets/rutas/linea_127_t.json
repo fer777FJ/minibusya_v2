@@ -1,0 +1,353 @@
+{
+  "id": "linea_127",
+  "sindicato": "Sindicato Continental",
+  "numero_linea": "127",
+  "origen": "Punto de referencia - Cielo Mall",
+  "destino": "Punto Fin de Ruta - Teleferico Amarillo estacion Mirador",
+  "color_hex": "#0D47A1",
+  "color_texto_hex": "#FFFFFF",
+  "tarifa_normal": 5.0,
+  "tarifa_estudiantil": 5.0,
+  "tarifa_nocturna": 5.0,
+  "horario_inicio": "06:30",
+  "horario_fin": "21:00",
+  "tipos_vehiculo": [
+    "Trufi"
+  ],
+  "paradas": [
+    {
+      "id": "linea_127_p01",
+      "nombre": "Fin de tramo - Teleferico Amarillo estacion Mirador",
+      "lat": -16.517824,
+      "lng": -68.15103,
+      "es_terminal": true,
+      "orden_en_ruta": 1
+    },
+    {
+      "id": "linea_127_p02",
+      "nombre": "Punto de referencia - Obelisco Satelite",
+      "lat": -16.516193,
+      "lng": -68.155228,
+      "es_terminal": false,
+      "orden_en_ruta": 2
+    },
+    {
+      "id": "linea_127_p03",
+      "nombre": "Punto de referencia - Av. Civica",
+      "lat": -16.516317368707846,
+      "lng": -68.15509068566558,
+      "es_terminal": false,
+      "orden_en_ruta": 3
+    },
+    {
+      "id": "linea_127_p04",
+      "nombre": "Punto de referencia - Av. Arica",
+      "lat": -16.516319,
+      "lng": -68.156166,
+      "es_terminal": false,
+      "orden_en_ruta": 4
+    },
+    {
+      "id": "linea_127_p05",
+      "nombre": "Punto de referencia - Plaza Trianngular El Alto",
+      "lat": -16.518444,
+      "lng": -68.160405,
+      "es_terminal": false,
+      "orden_en_ruta": 5
+    },
+    {
+      "id": "linea_127_p06",
+      "nombre": "Punto de referencia - Cruce Av. Tihuanacu y Av. Satelite",
+      "lat": -16.517295,
+      "lng": -68.163779,
+      "es_terminal": false,
+      "orden_en_ruta": 6
+    },
+    {
+      "id": "linea_127_p07",
+      "nombre": "Punto de referencia - Av. Satelite",
+      "lat": -16.516876150259407,
+      "lng": -68.16498866907013,
+      "es_terminal": false,
+      "orden_en_ruta": 7
+    },
+    {
+      "id": "linea_127_p08",
+      "nombre": "Fin de tramo - Cruce Viacha",
+      "lat": -16.516382491120027,
+      "lng": -68.16687059222765,
+      "es_terminal": true,
+      "orden_en_ruta": 8
+    },
+    {
+      "id": "linea_127_p09",
+      "nombre": "Punto de referencia - Jusgado El Alto",
+      "lat": -16.516534,
+      "lng": -68.166277,
+      "es_terminal": false,
+      "orden_en_ruta": 9
+    },
+    {
+      "id": "linea_127_p10",
+      "nombre": "Punto de referencia - Cielo Mall",
+      "lat": -16.516374607402867,
+      "lng": -68.16637751272337,
+      "es_terminal": false,
+      "orden_en_ruta": 10
+    }
+  ],
+  "coordenadas": [
+    {
+      "lat": -16.516382,
+      "lng": -68.166877
+    },
+    {
+      "lat": -16.516296,
+      "lng": -68.166847
+    },
+    {
+      "lat": -16.516336,
+      "lng": -68.166708
+    },
+    {
+      "lat": -16.5165,
+      "lng": -68.166186
+    },
+    {
+      "lat": -16.516593,
+      "lng": -68.165874
+    },
+    {
+      "lat": -16.516816,
+      "lng": -68.165142
+    },
+    {
+      "lat": -16.516816,
+      "lng": -68.165142
+    },
+    {
+      "lat": -16.516965,
+      "lng": -68.164658
+    },
+    {
+      "lat": -16.517103,
+      "lng": -68.164207
+    },
+    {
+      "lat": -16.517238,
+      "lng": -68.163825
+    },
+    {
+      "lat": -16.517253,
+      "lng": -68.163798
+    },
+    {
+      "lat": -16.517294,
+      "lng": -68.163775
+    },
+    {
+      "lat": -16.517294,
+      "lng": -68.163775
+    },
+    {
+      "lat": -16.517437,
+      "lng": -68.163716
+    },
+    {
+      "lat": -16.517497,
+      "lng": -68.163673
+    },
+    {
+      "lat": -16.517525,
+      "lng": -68.163624
+    },
+    {
+      "lat": -16.517645,
+      "lng": -68.163233
+    },
+    {
+      "lat": -16.517663,
+      "lng": -68.163239
+    },
+    {
+      "lat": -16.517645,
+      "lng": -68.163233
+    },
+    {
+      "lat": -16.517721,
+      "lng": -68.162975
+    },
+    {
+      "lat": -16.517935,
+      "lng": -68.162295
+    },
+    {
+      "lat": -16.518004,
+      "lng": -68.162107
+    },
+    {
+      "lat": -16.518091,
+      "lng": -68.161937
+    },
+    {
+      "lat": -16.51843,
+      "lng": -68.161452
+    },
+    {
+      "lat": -16.518773,
+      "lng": -68.160943
+    },
+    {
+      "lat": -16.518774,
+      "lng": -68.160941
+    },
+    {
+      "lat": -16.518703,
+      "lng": -68.160881
+    },
+    {
+      "lat": -16.518154,
+      "lng": -68.159891
+    },
+    {
+      "lat": -16.517866,
+      "lng": -68.159378
+    },
+    {
+      "lat": -16.516595,
+      "lng": -68.157078
+    },
+    {
+      "lat": -16.516293,
+      "lng": -68.156534
+    },
+    {
+      "lat": -16.516143,
+      "lng": -68.156261
+    },
+    {
+      "lat": -16.51627,
+      "lng": -68.156185
+    },
+    {
+      "lat": -16.516296,
+      "lng": -68.156204
+    },
+    {
+      "lat": -16.51631925506946,
+      "lng": -68.15616747109193
+    },
+    {
+      "lat": -16.515947954953774,
+      "lng": -68.15590292134887
+    },
+    {
+      "lat": -16.515586,
+      "lng": -68.155642
+    },
+    {
+      "lat": -16.515575,
+      "lng": -68.155633
+    },
+    {
+      "lat": -16.515618,
+      "lng": -68.15561
+    },
+    {
+      "lat": -16.515825,
+      "lng": -68.155458
+    },
+    {
+      "lat": -16.515906,
+      "lng": -68.15541
+    },
+    {
+      "lat": -16.516244,
+      "lng": -68.155194
+    },
+    {
+      "lat": -16.516294,
+      "lng": -68.155136
+    },
+    {
+      "lat": -16.516334,
+      "lng": -68.155011
+    },
+    {
+      "lat": -16.516337,
+      "lng": -68.154914
+    },
+    {
+      "lat": -16.516305,
+      "lng": -68.154802
+    },
+    {
+      "lat": -16.51625,
+      "lng": -68.15472
+    },
+    {
+      "lat": -16.516171,
+      "lng": -68.154653
+    },
+    {
+      "lat": -16.516108,
+      "lng": -68.154627
+    },
+    {
+      "lat": -16.516155,
+      "lng": -68.154512
+    },
+    {
+      "lat": -16.51638,
+      "lng": -68.153961
+    },
+    {
+      "lat": -16.516597,
+      "lng": -68.153426
+    },
+    {
+      "lat": -16.517441,
+      "lng": -68.151309
+    },
+    {
+      "lat": -16.517548,
+      "lng": -68.151246
+    },
+    {
+      "lat": -16.517689,
+      "lng": -68.151136
+    },
+    {
+      "lat": -16.517764,
+      "lng": -68.151106
+    },
+    {
+      "lat": -16.517761,
+      "lng": -68.151104
+    },
+    {
+      "lat": -16.517764,
+      "lng": -68.151106
+    },
+    {
+      "lat": -16.517788,
+      "lng": -68.151117
+    },
+    {
+      "lat": -16.517798,
+      "lng": -68.151094
+    },
+    {
+      "lat": -16.517812,
+      "lng": -68.151062
+    },
+    {
+      "lat": -16.517822,
+      "lng": -68.151036
+    },
+    {
+      "lat": -16.517819,
+      "lng": -68.151033
+    }
+  ]
+}

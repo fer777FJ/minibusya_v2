@@ -2,8 +2,8 @@
   "id": "linea_752",
   "sindicato": "Sindicato Pedro Domingo Murillo",
   "numero_linea": "752",
-  "origen": "Inicio de Ruta - Zona Copacabana",
-  "destino": "Fin de Ruta - Calle 2 Ceja",
+  "origen": "Fin de tramo - Copacabana",
+  "destino": "Fin de tramo - Ceja calle 2",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_752_p01",
-      "nombre": "Inicio de Ruta - Zona Copacabana",
+      "nombre": "Fin de tramo - Copacabana",
       "lat": -16.608336,
       "lng": -68.207403,
       "es_terminal": true,
@@ -105,7 +105,7 @@
     },
     {
       "id": "linea_752_p12",
-      "nombre": "Fin de Ruta - Calle 2 Ceja",
+      "nombre": "Fin de tramo - Ceja calle 2",
       "lat": -16.506177,
       "lng": -68.163656,
       "es_terminal": true,

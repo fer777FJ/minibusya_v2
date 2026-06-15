@@ -4,21 +4,23 @@ import 'package:latlong2/latlong.dart';
 /// Representa una línea de transporte (sindicato de minibuses)
 class RutaModel {
   final String id;
-  final String sindicato;       // "Eduardo Avaroa", "Villa San Antonio", etc.
-  final String numeroLinea;     // "102", "273", etc.
-  final String origen;          // "Plaza Tejada Sorzano"
-  final String destino;         // "El Alto - Villa Dolores"
-  final String colorHex;        // Color del letrero "#FF0000"
-  final String colorTextoHex;   // Color del texto del letrero
-  final double tarifaNormal;    // en Bolivianos
+  final String sindicato; // "Eduardo Avaroa", "Villa San Antonio", etc.
+  final String numeroLinea; // "102", "273", etc.
+  final String origen; // "Plaza Tejada Sorzano"
+  final String destino; // "El Alto - Villa Dolores"
+  final String colorHex; // Color del letrero "#FF0000"
+  final String colorTextoHex; // Color del texto del letrero
+  final double tarifaNormal; // en Bolivianos
   final double tarifaEstudiantil;
   final double tarifaNocturna;
-  final String horarioInicio;   // "05:30"
-  final String horarioFin;      // "22:00"
+  final double? tarifaTransbordo;
+  final double? tarifaTransbordoEstudiantil;
+  final String horarioInicio; // "05:30"
+  final String horarioFin; // "22:00"
   final List<String> tiposVehiculo; // ["Minibús", "Trufi"]
   final List<ParadaModel> paradas;
-  final List<LatLng> coordenadas;   // Trazado completo de la ruta
-  final String? letreroImagePath;   // path al asset del letrero
+  final List<LatLng> coordenadas; // Trazado completo de la ruta
+  final String? letreroImagePath; // path al asset del letrero
 
   const RutaModel({
     required this.id,
@@ -31,6 +33,8 @@ class RutaModel {
     required this.tarifaNormal,
     required this.tarifaEstudiantil,
     required this.tarifaNocturna,
+    this.tarifaTransbordo,
+    this.tarifaTransbordoEstudiantil,
     required this.horarioInicio,
     required this.horarioFin,
     required this.tiposVehiculo,
@@ -51,6 +55,9 @@ class RutaModel {
       tarifaNormal: (json['tarifa_normal'] as num).toDouble(),
       tarifaEstudiantil: (json['tarifa_estudiantil'] as num).toDouble(),
       tarifaNocturna: (json['tarifa_nocturna'] as num).toDouble(),
+      tarifaTransbordo: (json['tarifa_transbordo'] as num?)?.toDouble(),
+      tarifaTransbordoEstudiantil:
+          (json['tarifa_transbordo_estudiantil'] as num?)?.toDouble(),
       horarioInicio: json['horario_inicio'] as String? ?? '05:30',
       horarioFin: json['horario_fin'] as String? ?? '22:00',
       tiposVehiculo: List<String>.from(json['tipos_vehiculo'] as List),
@@ -78,6 +85,8 @@ class RutaModel {
         'tarifa_normal': tarifaNormal,
         'tarifa_estudiantil': tarifaEstudiantil,
         'tarifa_nocturna': tarifaNocturna,
+        'tarifa_transbordo': tarifaTransbordo,
+        'tarifa_transbordo_estudiantil': tarifaTransbordoEstudiantil,
         'horario_inicio': horarioInicio,
         'horario_fin': horarioFin,
         'tipos_vehiculo': tiposVehiculo,

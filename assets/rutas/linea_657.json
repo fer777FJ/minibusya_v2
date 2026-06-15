@@ -2,8 +2,8 @@
   "id": "linea_657",
   "sindicato": "Sindicato El Norte",
   "numero_linea": "657",
-  "origen": "punto final de ruta  de parada exterminal",
-  "destino": "PUNTO DE INICIO DE RECORRIDO PARADA 657",
+  "origen": "Fin de tramo - Ex Terminal",
+  "destino": "Fin de tramo - Achachicalaya",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_657_p01",
-      "nombre": "punto final de ruta  de parada exterminal",
+      "nombre": "Fin de tramo - Ex Terminal",
       "lat": -16.509101,
       "lng": -68.16614,
       "es_terminal": true,
@@ -33,7 +33,7 @@
     },
     {
       "id": "linea_657_p03",
-      "nombre": "FINAL DE RECORRIDO PUNTO DE PARADA 657",
+      "nombre": "punto de referencia - Achachicalaya",
       "lat": -16.5086,
       "lng": -68.224514,
       "es_terminal": false,
@@ -41,7 +41,7 @@
     },
     {
       "id": "linea_657_p04",
-      "nombre": "punto de parada",
+      "nombre": "punto de referencia - Mercado el Carmen",
       "lat": -16.506138,
       "lng": -68.220908,
       "es_terminal": false,
@@ -49,7 +49,7 @@
     },
     {
       "id": "linea_657_p05",
-      "nombre": "punto de parada viviendad mercadoel carmen",
+      "nombre": "punto de referencia - Mercado el Carmen",
       "lat": -16.496763,
       "lng": -68.214782,
       "es_terminal": false,
@@ -57,7 +57,7 @@
     },
     {
       "id": "linea_657_p06",
-      "nombre": "punto de parada teleferico linea azul",
+      "nombre": "punto de referencia - Teleferico linea azul",
       "lat": -16.490623,
       "lng": -68.20989,
       "es_terminal": false,
@@ -65,7 +65,7 @@
     },
     {
       "id": "linea_657_p07",
-      "nombre": "punto de parada multicine rio seco",
+      "nombre": "punto de referencia - multicine rio seco",
       "lat": -16.490832,
       "lng": -68.203784,
       "es_terminal": false,
@@ -73,7 +73,7 @@
     },
     {
       "id": "linea_657_p08",
-      "nombre": "punto de parada pasando puente rio seco",
+      "nombre": "punto de referencia - pasando puente rio seco",
       "lat": -16.491198,
       "lng": -68.20193,
       "es_terminal": false,
@@ -81,7 +81,7 @@
     },
     {
       "id": "linea_657_p09",
-      "nombre": "punto de parada upea",
+      "nombre": "punto de referencia - upea",
       "lat": -16.494411,
       "lng": -68.194088,
       "es_terminal": false,
@@ -89,7 +89,7 @@
     },
     {
       "id": "linea_657_p10",
-      "nombre": "punto de parada Av. alfonso ugarte (chacaltaya)",
+      "nombre": "punto de referencia - Av. alfonso ugarte (chacaltaya)",
       "lat": -16.499923230888115,
       "lng": -68.17507491831222,
       "es_terminal": false,
@@ -97,7 +97,7 @@
     },
     {
       "id": "linea_657_p11",
-      "nombre": "punto de parada Av. la paz",
+      "nombre": "punto de referencia - Av. la paz",
       "lat": -16.49733,
       "lng": -68.184652,
       "es_terminal": false,
@@ -105,7 +105,7 @@
     },
     {
       "id": "linea_657_p12",
-      "nombre": "punto de parada desvio ceja",
+      "nombre": "punto de referencia - desvio ceja",
       "lat": -16.502749,
       "lng": -68.165015,
       "es_terminal": false,
@@ -113,7 +113,7 @@
     },
     {
       "id": "linea_657_p13",
-      "nombre": "punto de parada",
+      "nombre": "punto de referencia - Av. la paz",
       "lat": -16.50628,
       "lng": -68.164719,
       "es_terminal": false,
@@ -121,7 +121,7 @@
     },
     {
       "id": "linea_657_p14",
-      "nombre": "PUNTO DE INICIO DE RECORRIDO PARADA 657",
+      "nombre": "Fin de tramo - Achachicalaya",
       "lat": -16.508608,
       "lng": -68.224526,
       "es_terminal": true,

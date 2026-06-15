@@ -2,8 +2,8 @@
   "id": "linea_105_t",
   "sindicato": "Sindicato San Avaroa",
   "numero_linea": "105",
-  "origen": "San Pedro",
-  "destino": "Cuartel Ingavi",
+  "origen": "Fin de tramo - San Pedro",
+  "destino": "Fin de tramo - Cuartel Ingavi",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 7.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_105_t_p01",
-      "nombre": "San Pedro",
+      "nombre": "Fin de tramo - San Pedro",
       "lat": -16.502529,
       "lng": -68.133119,
       "es_terminal": true,
@@ -65,7 +65,7 @@
     },
     {
       "id": "linea_105_t_p07",
-      "nombre": "Cuartel Ingavi",
+      "nombre": "Fin de tramo - Cuartel Ingavi",
       "lat": -16.5234,
       "lng": -68.169125,
       "es_terminal": true,

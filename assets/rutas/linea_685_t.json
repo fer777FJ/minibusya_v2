@@ -2,8 +2,8 @@
   "id": "linea_685_t",
   "sindicato": "Sindicato Avaroa",
   "numero_linea": "685",
-  "origen": "Punto fin de ruta - Puente Boliviaa",
-  "destino": "Inicio de Ruta - Cruce Villadela",
+  "origen": "Fin de tramo - Cruce Villadela",
+  "destino": "Fin de tramo - Puente Boliviaa",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 4.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_685_t_p01",
-      "nombre": "Punto fin de ruta - Puente Boliviaa",
+      "nombre": "Fin de tramo - Puente Boliviaa",
       "lat": -16.51493,
       "lng": -68.21751,
       "es_terminal": true,
@@ -49,7 +49,7 @@
     },
     {
       "id": "linea_685_t_p05",
-      "nombre": "Inicio de Ruta - Cruce Villadela",
+      "nombre": "Fin de tramo - Cruce Villadela",
       "lat": -16.534438,
       "lng": -68.190773,
       "es_terminal": true,

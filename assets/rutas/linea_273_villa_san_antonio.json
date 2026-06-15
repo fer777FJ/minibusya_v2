@@ -2,8 +2,8 @@
   "id": "linea_273",
   "sindicato": "Sindicato 6 de Marzo - Villa San Antonio",
   "numero_linea": "273",
-  "origen": "Plaza Tejada Sorzano - Miraflores",
-  "destino": "Villa San Antonio - El Alto",
+  "origen": "Fin de tramo - Plaza Tejada Sorzano",
+  "destino": "Fin de tramo - Villa San Antonio",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -11,11 +11,13 @@
   "tarifa_nocturna": 2.5,
   "horario_inicio": "05:30",
   "horario_fin": "22:00",
-  "tipos_vehiculo": ["Minibus"],
+  "tipos_vehiculo": [
+    "Minibus"
+  ],
   "paradas": [
     {
       "id": "273_p01",
-      "nombre": "Plaza Tejada Sorzano",
+      "nombre": "Fin de tramo - Plaza Tejada Sorzano",
       "lat": -16.4890,
       "lng": -68.1210,
       "es_terminal": true,
@@ -23,7 +25,7 @@
     },
     {
       "id": "273_p02",
-      "nombre": "Av. Busch - Miraflores",
+      "nombre": "punto de referencia - Av. Busch - Miraflores",
       "lat": -16.4870,
       "lng": -68.1220,
       "es_terminal": false,
@@ -31,7 +33,7 @@
     },
     {
       "id": "273_p03",
-      "nombre": "Plaza del Estadio",
+      "nombre": "punto de referencica - Plaza del Estadio",
       "lat": -16.4850,
       "lng": -68.1235,
       "es_terminal": false,
@@ -39,7 +41,7 @@
     },
     {
       "id": "273_p04",
-      "nombre": "Av. Periférica - Cruce",
+      "nombre": "punto de referencia - Av. Periférica - Cruce",
       "lat": -16.4800,
       "lng": -68.1270,
       "es_terminal": false,
@@ -47,7 +49,7 @@
     },
     {
       "id": "273_p05",
-      "nombre": "Ceja El Alto - Terminal",
+      "nombre": "punto de referencia - Ceja Terminal",
       "lat": -16.4750,
       "lng": -68.1350,
       "es_terminal": false,
@@ -55,7 +57,7 @@
     },
     {
       "id": "273_p06",
-      "nombre": "Villa San Antonio - Final",
+      "nombre": "Fin de tramo - Villa San Antonio",
       "lat": -16.4700,
       "lng": -68.1420,
       "es_terminal": true,
@@ -63,22 +65,73 @@
     }
   ],
   "coordenadas": [
-    { "lat": -16.4890, "lng": -68.1210 },
-    { "lat": -16.4880, "lng": -68.1215 },
-    { "lat": -16.4870, "lng": -68.1220 },
-    { "lat": -16.4860, "lng": -68.1228 },
-    { "lat": -16.4850, "lng": -68.1235 },
-    { "lat": -16.4840, "lng": -68.1243 },
-    { "lat": -16.4825, "lng": -68.1255 },
-    { "lat": -16.4810, "lng": -68.1263 },
-    { "lat": -16.4800, "lng": -68.1270 },
-    { "lat": -16.4785, "lng": -68.1290 },
-    { "lat": -16.4770, "lng": -68.1310 },
-    { "lat": -16.4760, "lng": -68.1328 },
-    { "lat": -16.4750, "lng": -68.1350 },
-    { "lat": -16.4735, "lng": -68.1375 },
-    { "lat": -16.4720, "lng": -68.1395 },
-    { "lat": -16.4710, "lng": -68.1408 },
-    { "lat": -16.4700, "lng": -68.1420 }
+    {
+      "lat": -16.4890,
+      "lng": -68.1210
+    },
+    {
+      "lat": -16.4880,
+      "lng": -68.1215
+    },
+    {
+      "lat": -16.4870,
+      "lng": -68.1220
+    },
+    {
+      "lat": -16.4860,
+      "lng": -68.1228
+    },
+    {
+      "lat": -16.4850,
+      "lng": -68.1235
+    },
+    {
+      "lat": -16.4840,
+      "lng": -68.1243
+    },
+    {
+      "lat": -16.4825,
+      "lng": -68.1255
+    },
+    {
+      "lat": -16.4810,
+      "lng": -68.1263
+    },
+    {
+      "lat": -16.4800,
+      "lng": -68.1270
+    },
+    {
+      "lat": -16.4785,
+      "lng": -68.1290
+    },
+    {
+      "lat": -16.4770,
+      "lng": -68.1310
+    },
+    {
+      "lat": -16.4760,
+      "lng": -68.1328
+    },
+    {
+      "lat": -16.4750,
+      "lng": -68.1350
+    },
+    {
+      "lat": -16.4735,
+      "lng": -68.1375
+    },
+    {
+      "lat": -16.4720,
+      "lng": -68.1395
+    },
+    {
+      "lat": -16.4710,
+      "lng": -68.1408
+    },
+    {
+      "lat": -16.4700,
+      "lng": -68.1420
+    }
   ]
 }

@@ -8,13 +8,13 @@
     <!-- Internet para el modo online (OSM durante desarrollo) -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Almacenamiento (opcional, para exportar reportes) -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Permisos para el micrófono (Búsqueda por Voz) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:label="MiniBus Ya"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">
 
         <activity

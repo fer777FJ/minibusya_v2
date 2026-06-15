@@ -1,0 +1,107 @@
+{
+  "id": "linea_TelefericoCafe",
+  "sindicato": "Mi Teleferico",
+  "numero_linea": "CAF",
+  "origen": "Teleferico Cafe- Estacion Las Villas",
+  "destino": "Teleferico Cafe - Estacion Monumento Busch",
+  "color_hex": "#8B4513",
+  "color_texto_hex": "#FFFFFF",
+  "tarifa_normal": 3.0,
+  "tarifa_estudiantil": 1.5,
+  "tarifa_nocturna": 3.0,
+  "tarifa_transbordo": 2.0,
+  "tarifa_transbordo_estudiantil": 1.5,
+  "horario_inicio": "07:00",
+  "horario_fin": "22:00",
+  "tipos_vehiculo": [
+    "Teleferico"
+  ],
+  "paradas": [
+    {
+      "id": "linea_TelefericoCafe_p01",
+      "nombre": "Teleferico Cafe- Estacion Las Villas",
+      "lat": -16.497665,
+      "lng": -68.115132,
+      "es_terminal": true,
+      "orden_en_ruta": 1
+    },
+    {
+      "id": "linea_TelefericoCafe_p02",
+      "nombre": "Teleferico Cafe - Estacion Monumento Busch",
+      "lat": -16.493802,
+      "lng": -68.120882,
+      "es_terminal": true,
+      "orden_en_ruta": 2
+    }
+  ],
+  "coordenadas": [
+    {
+      "lat": -16.493804159004853,
+      "lng": -68.12088671175381
+    },
+    {
+      "lat": -16.494069205411268,
+      "lng": -68.12050787947872
+    },
+    {
+      "lat": -16.494334251817683,
+      "lng": -68.12012904720363
+    },
+    {
+      "lat": -16.494599298224102,
+      "lng": -68.11975021492854
+    },
+    {
+      "lat": -16.494864344630518,
+      "lng": -68.11937138265345
+    },
+    {
+      "lat": -16.495129391036933,
+      "lng": -68.11899255037837
+    },
+    {
+      "lat": -16.49539443744335,
+      "lng": -68.11861371810328
+    },
+    {
+      "lat": -16.4954974477194,
+      "lng": -68.11846648495357
+    },
+    {
+      "lat": -16.49574943528417,
+      "lng": -68.11807807693957
+    },
+    {
+      "lat": -16.496001422848945,
+      "lng": -68.11768966892556
+    },
+    {
+      "lat": -16.496253410413715,
+      "lng": -68.11730126091156
+    },
+    {
+      "lat": -16.49650539797849,
+      "lng": -68.11691285289756
+    },
+    {
+      "lat": -16.49675738554326,
+      "lng": -68.11652444488355
+    },
+    {
+      "lat": -16.497009373108032,
+      "lng": -68.11613603686955
+    },
+    {
+      "lat": -16.497261360672802,
+      "lng": -68.11574762885554
+    },
+    {
+      "lat": -16.497513348237575,
+      "lng": -68.11535922084154
+    },
+    {
+      "lat": -16.49766329945939,
+      "lng": -68.11512808937157
+    }
+  ]
+}

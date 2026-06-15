@@ -1,10 +1,12 @@
 // lib/views/report_view.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
-import '../controllers/database_helper.dart';
+import 'package:image_picker/image_picker.dart';
 import '../controllers/mapa_controller.dart';
 import '../models/ruta_model.dart';
 import '../utils/app_theme.dart';
 import '../controllers/reporte_service.dart';
+import '../utils/voice_search_helper.dart';
 
 class ReportView extends StatefulWidget {
   final MapaController? mapaController;
@@ -16,12 +18,37 @@ class ReportView extends StatefulWidget {
 }
 
 class _ReportViewState extends State<ReportView> {
-  final DatabaseHelper _db = DatabaseHelper();
   final TextEditingController _descripcionCtrl = TextEditingController();
   late MapaController _mapaCtrl;
+  bool _createdOwnMapaCtrl = false;
+  String? _fotoPath;
 
   TipoReporte? _tipoSeleccionado;
   bool _enviando = false;
+
+  Future<void> _seleccionarFoto(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          _fotoPath = pickedFile.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error seleccionando imagen: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al seleccionar imagen: $e')),
+        );
+      }
+    }
+  }
 
   static const _tiposReporte = [
     _ReporteTipo(
@@ -57,12 +84,27 @@ class _ReportViewState extends State<ReportView> {
   @override
   void initState() {
     super.initState();
-    _mapaCtrl = widget.mapaController ?? MapaController();
+    if (widget.mapaController == null) {
+      _mapaCtrl = MapaController();
+      _createdOwnMapaCtrl = true;
+    } else {
+      _mapaCtrl = widget.mapaController!;
+    }
+
+    // Intentar obtener la ubicación automáticamente al entrar si no se tiene
+    if (_mapaCtrl.ubicacionUsuario == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mapaCtrl.obtenerUbicacion(context: context);
+      });
+    }
   }
 
   @override
   void dispose() {
     _descripcionCtrl.dispose();
+    if (_createdOwnMapaCtrl) {
+      _mapaCtrl.dispose();
+    }
     super.dispose();
   }
 
@@ -97,7 +139,7 @@ class _ReportViewState extends State<ReportView> {
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pop(context);
-                _mapaCtrl.obtenerUbicacion();
+                _mapaCtrl.obtenerUbicacion(context: context);
               },
               icon: const Icon(Icons.my_location),
               label: const Text('Obtener ubicación'),
@@ -118,6 +160,7 @@ class _ReportViewState extends State<ReportView> {
         descripcion: _descripcionCtrl.text.trim().isEmpty
             ? null
             : _descripcionCtrl.text.trim(),
+        fotoPath: _fotoPath,
       );
 
       if (mounted) {
@@ -268,7 +311,14 @@ class _ReportViewState extends State<ReportView> {
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.mic_outlined,
                       color: AppTheme.azulPrimario),
-                  onPressed: () {/* TODO: speech_to_text */},
+                  onPressed: () {
+                    VoiceSearchHelper.escucharVoz(
+                      context,
+                      onResult: (texto) {
+                        _descripcionCtrl.text = texto;
+                      },
+                    );
+                  },
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -281,27 +331,177 @@ class _ReportViewState extends State<ReportView> {
 
             const SizedBox(height: 16),
 
-            // Mini mapa preview de ubicación
-            Container(
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppTheme.blancoFondo,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[300]!),
+            const Text(
+              'Agregar Foto del Incidente',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
-              child: const Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.location_on, color: AppTheme.rojoAlerta),
-                    SizedBox(width: 8),
-                    Text(
-                      'Ubicación GPS capturada',
-                      style: TextStyle(color: AppTheme.grisTexto, fontSize: 13),
+            ),
+            const SizedBox(height: 10),
+
+            _fotoPath == null
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _seleccionarFoto(ImageSource.camera),
+                          icon: const Icon(Icons.camera_alt),
+                          label: const Text('Tomar Foto'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.azulPrimario,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _seleccionarFoto(ImageSource.gallery),
+                          icon: const Icon(Icons.photo_library),
+                          label: const Text('Galería'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.azulPrimario,
+                            side: const BorderSide(color: AppTheme.azulPrimario),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image: FileImage(File(_fotoPath!)),
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ],
-                ),
-              ),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.black54,
+                            child: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.white),
+                              onPressed: () => setState(() => _fotoPath = null),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+            const SizedBox(height: 16),
+
+            // Mini mapa preview de ubicación
+            AnimatedBuilder(
+              animation: _mapaCtrl,
+              builder: (context, _) {
+                final ubicacion = _mapaCtrl.ubicacionUsuario;
+                final cargando = _mapaCtrl.cargandoUbicacion;
+                final error = _mapaCtrl.errorUbicacion;
+
+                return Container(
+                  height: 100,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppTheme.blancoFondo,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: ubicacion != null
+                          ? AppTheme.verdeOk.withOpacity(0.5)
+                          : (error != null ? AppTheme.rojoAlerta.withOpacity(0.5) : Colors.grey[300]!),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (cargando) ...[
+                            const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.azulPrimario),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'Buscando señal GPS...',
+                              style: TextStyle(color: AppTheme.grisTexto, fontSize: 13),
+                            ),
+                          ] else if (ubicacion != null) ...[
+                            const Icon(Icons.check_circle, color: AppTheme.verdeOk, size: 24),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Ubicación GPS capturada',
+                                    style: TextStyle(
+                                      color: AppTheme.verdeOk,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Lat: ${ubicacion.latitude.toStringAsFixed(5)}, Lng: ${ubicacion.longitude.toStringAsFixed(5)}',
+                                    style: const TextStyle(
+                                      color: AppTheme.grisTexto,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ] else ...[
+                            const Icon(Icons.location_off, color: AppTheme.rojoAlerta, size: 24),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    error ?? 'Ubicación GPS no obtenida',
+                                    style: const TextStyle(
+                                      color: AppTheme.rojoAlerta,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Activa tu GPS para enviar el reporte',
+                                    style: TextStyle(
+                                      color: AppTheme.grisTexto,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.my_location, color: AppTheme.azulPrimario),
+                              tooltip: 'Buscar ubicación',
+                              onPressed: () => _mapaCtrl.obtenerUbicacion(context: context),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 24),

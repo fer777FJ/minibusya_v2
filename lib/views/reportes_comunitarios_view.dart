@@ -1,4 +1,5 @@
 // lib/views/reportes_comunitarios_view.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -114,7 +115,7 @@ class _ReportesComunitariosViewState extends State<ReportesComunitariosView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.check_circle_outline,
                     size: 64,
                     color: AppTheme.verdeOk,
@@ -142,9 +143,7 @@ class _ReportesComunitariosViewState extends State<ReportesComunitariosView> {
           }
 
           // Mostrar mapa o lista según toggle
-          return _mostrarMapa
-              ? _buildMapa(reportes)
-              : _buildLista(reportes);
+          return _mostrarMapa ? _buildMapa(reportes) : _buildLista(reportes);
         },
       ),
     );
@@ -162,6 +161,7 @@ class _ReportesComunitariosViewState extends State<ReportesComunitariosView> {
         final descripcion = reporte['descripcion'] as String?;
         final lat = reporte['lat'] as double;
         final lng = reporte['lng'] as double;
+        final fotoBase64 = reporte['foto_base64'] as String?;
 
         // Parsear timestamp
         dynamic timestamp = reporte['timestamp'];
@@ -258,6 +258,25 @@ class _ReportesComunitariosViewState extends State<ReportesComunitariosView> {
                     ],
                   ),
 
+                // ─── Foto (si existe)
+                if (fotoBase64 != null && fotoBase64.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.memory(
+                          base64Decode(fotoBase64),
+                          height: 150,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+
                 // ─── Ubicación
                 Row(
                   children: [
@@ -296,7 +315,6 @@ class _ReportesComunitariosViewState extends State<ReportesComunitariosView> {
       final tipo = reporte['tipo'] as String;
       final lat = reporte['lat'] as double;
       final lng = reporte['lng'] as double;
-      final descripcion = reporte['descripcion'] as String?;
 
       return Marker(
         point: LatLng(lat, lng),
@@ -352,6 +370,7 @@ class _ReportesComunitariosViewState extends State<ReportesComunitariosView> {
   void _mostrarDetalleReporte(Map<String, dynamic> reporte) {
     final tipo = reporte['tipo'] as String;
     final descripcion = reporte['descripcion'] as String?;
+    final fotoBase64 = reporte['foto_base64'] as String?;
 
     dynamic timestamp = reporte['timestamp'];
     DateTime? fechaReporte;
@@ -364,94 +383,140 @@ class _ReportesComunitariosViewState extends State<ReportesComunitariosView> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  _obtenerEmojiReporte(tipo),
-                  style: const TextStyle(fontSize: 40),
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        maxChildSize: 0.9,
+        minChildSize: 0.4,
+        expand: false,
+        builder: (_, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _obtenerLabelReporte(tipo),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      if (fechaReporte != null)
+              ),
+              Row(
+                children: [
+                  Text(
+                    _obtenerEmojiReporte(tipo),
+                    style: const TextStyle(fontSize: 40),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          _formatearFecha(fechaReporte),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
+                          _obtenerLabelReporte(tipo),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
                         ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (descripcion != null && descripcion.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Detalles:',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                        if (fechaReporte != null)
+                          Text(
+                            _formatearFecha(fechaReporte),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(descripcion),
-                  ),
-                  const SizedBox(height: 16),
                 ],
               ),
-            Row(
-              children: [
-                Icon(Icons.location_on,
-                    size: 16, color: _obtenerColorReporte(tipo)),
-                const SizedBox(width: 6),
-                Text(
-                  '${reporte['lat']}, ${reporte['lng']}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.grisTexto,
-                  ),
+              const SizedBox(height: 16),
+              if (descripcion != null && descripcion.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Detalles:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(descripcion),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cerrar'),
+              if (fotoBase64 != null && fotoBase64.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Foto adjunta:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.memory(
+                        base64Decode(fotoBase64),
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          height: 200,
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.error_outline, size: 40),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              Row(
+                children: [
+                  Icon(Icons.location_on,
+                      size: 16, color: _obtenerColorReporte(tipo)),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${reporte['lat']}, ${reporte['lng']}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.grisTexto,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cerrar'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

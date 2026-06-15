@@ -17,12 +17,12 @@ class RutasController {
 
   /// Lista de archivos JSON en assets/rutas/ — agrega aquí cada sindicato
   static const List<String> _archivosRutas = [
-    'assets/rutas/linea_273_villa_san_antonio.json',
-    'assets/rutas/linea_102_miraflores.json',
     'assets/rutas/linea_001.json',
-    'assets/rutas/linea_101.json',
-    'assets/rutas/linea_105_t.json',
+    'assets/rutas/linea_101_t.json',
+    'assets/rutas/linea_105_5.json',
     'assets/rutas/linea_112.json',
+    'assets/rutas/linea_127_t.json',
+    'assets/rutas/linea_273_villa_san_antonio.json',
     'assets/rutas/linea_280.json',
     'assets/rutas/linea_281.json',
     'assets/rutas/linea_282.json',
@@ -40,7 +40,18 @@ class RutasController {
     'assets/rutas/linea_771.json',
     'assets/rutas/linea_782.json',
     'assets/rutas/linea_824.json',
-    // 👆 Agrega más archivos aquí conforme levanten datos en campo
+    'assets/rutas/linea_898.json',
+    'assets/rutas/linea_TelefericoAmarillo.json',
+    'assets/rutas/linea_TelefericoAzul.json',
+    'assets/rutas/linea_TelefericoBlanco.json',
+    'assets/rutas/linea_TelefericoCafe.json',
+    'assets/rutas/linea_TelefericoCeleste.json',
+    'assets/rutas/linea_TelefericoMorado.json',
+    'assets/rutas/linea_TelefericoNaranja.json',
+    'assets/rutas/linea_TelefericoPlateado.json',
+    'assets/rutas/linea_TelefericoRojo.json',
+    'assets/rutas/linea_TelefericoVerde.json',
+    // Agrega más archivos aquí conforme levanten datos en campo
   ];
 
   /// Carga todas las rutas desde los assets al iniciar la app.
@@ -63,6 +74,20 @@ class RutasController {
     return _todasLasRutas;
   }
 
+  /// Elimina acentos y normaliza a minúsculas para que el filtro de
+  /// stop words y la búsqueda funcionen con o sin tilde.
+  static String _normalizarTexto(String texto) {
+    return texto
+        .toLowerCase()
+        .replaceAll(RegExp(r'[áàâä]'), 'a')
+        .replaceAll(RegExp(r'[éèêë]'), 'e')
+        .replaceAll(RegExp(r'[íìîï]'), 'i')
+        .replaceAll(RegExp(r'[óòôö]'), 'o')
+        .replaceAll(RegExp(r'[úùûü]'), 'u')
+        .replaceAll('ñ', 'n')
+        .replaceAll('ü', 'u');
+  }
+
   /// Busca rutas cuyo trazado pase cerca del destino indicado.
   /// Usa distancia euclidiana simple entre paradas y el punto destino.
   Future<List<RutaModel>> buscarRutas({
@@ -73,17 +98,66 @@ class RutasController {
     final rutas = await cargarTodasLasRutas();
     if (textoBusqueda.isEmpty) return rutas;
 
-    final busquedaLower = textoBusqueda.toLowerCase();
+    // Limpieza de términos al estilo chatbot (eliminando stop words y símbolos)
+    final stopWords = [
+      'como',
+      'llego',
+      'voy',
+      'ir',
+      'a',
+      'de',
+      'el',
+      'la',
+      'en',
+      'quiero',
+      'linea',
+      'minibus',
+      'trufi',
+      'micro',
+      'pumakatari',
+      'ruta',
+      'parada',
+      'para',
+      'por',
+      'favor',
+      'busca',
+      'dime',
+      'necesito',
+      'desde',
+      'hasta',
+      'al',
+      'del',
+      'un',
+      'una',
+      'y',
+      'o',
+      'lo',
+      'los',
+      'las'
+    ];
+
+    final tokens = _normalizarTexto(textoBusqueda)
+        .replaceAll(RegExp(r'[^\w\s]'), '')
+        .split(RegExp(r'\s+'))
+        .where((t) => t.trim().isNotEmpty && !stopWords.contains(t))
+        .toList();
+
+    final query = tokens.isEmpty ? _normalizarTexto(textoBusqueda).trim() : tokens.join(' ');
+
+    if (query.isEmpty) return [];
+
+    final busquedaLower = query; // ya está normalizada (sin acentos, minúsculas)
 
     return rutas.where((ruta) {
       // Busca en nombre del sindicato, origen, destino y paradas
-      if (ruta.sindicato.toLowerCase().contains(busquedaLower)) return true;
-      if (ruta.origen.toLowerCase().contains(busquedaLower)) return true;
-      if (ruta.destino.toLowerCase().contains(busquedaLower)) return true;
-      if (ruta.numeroLinea.toLowerCase().contains(busquedaLower)) return true;
+      // También normalizamos los campos de la ruta para comparación
+      if (_normalizarTexto(ruta.sindicato).contains(busquedaLower)) return true;
+      if (_normalizarTexto(ruta.origen).contains(busquedaLower)) return true;
+      if (_normalizarTexto(ruta.destino).contains(busquedaLower)) return true;
+      if (_normalizarTexto(ruta.numeroLinea).contains(busquedaLower)) return true;
 
       return ruta.paradas.any(
-        (parada) => parada.nombre.toLowerCase().contains(busquedaLower),
+        (parada) => _normalizarTexto(parada.nombre).contains(busquedaLower),
       );
     }).toList();
   }

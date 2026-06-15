@@ -17,7 +17,7 @@ dependencies:
   # Firebase
   firebase_core: ^3.6.0
   cloud_firestore: ^5.4.4
-  connectivity_plus: ^6.0.5  # para detectar si hay internet 
+  connectivity_plus: ^6.0.5  # para detectar si hay internet
 
   # Mapa offline (flutter map)
   flutter_map: ^6.1.0
@@ -34,16 +34,29 @@ dependencies:
   # Utilidades
   shared_preferences: ^2.2.3
   flutter_svg: ^2.0.10+1
-  cached_network_image: ^3.3.1
   intl: ^0.19.0
+  image_picker: ^1.1.2
+  flutter_image_compress: ^2.3.0  # comprimir fotos antes de guardar en Firestore
+  speech_to_text: ^7.4.0
 
   #IA gemini 2.5 flash
   google_generative_ai: ^0.4.6
+
+  # HTTP para llamadas a OSRM routing (navegación a pie)
+  http: ^1.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icono_minibus_ya.png"
+  min_sdk_android: 21 # SDK mínimo compatible
+
 
 flutter:
   uses-material-design: true

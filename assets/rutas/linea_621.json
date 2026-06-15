@@ -2,8 +2,8 @@
   "id": "linea_621",
   "sindicato": "Sindicato Santiago II",
   "numero_linea": "621",
-  "origen": "Punto fin de rutaa - Rotond Litorl y Junin",
-  "destino": "Inicio de ruta - Cruze Villa Adela",
+  "origen": "Fin de tramo - Rotond Litorl y Junin",
+  "destino": "Fin de tramo - Cruze Villa Adela",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_621_p01",
-      "nombre": "Punto fin de rutaa - Rotond Litorl y Junin",
+      "nombre": "Fin de tramo - Rotond Litorl y Junin",
       "lat": -16.52724,
       "lng": -68.215359,
       "es_terminal": true,
@@ -57,7 +57,7 @@
     },
     {
       "id": "linea_621_p06",
-      "nombre": "Inicio de ruta - Cruze Villa Adela",
+      "nombre": "Fin de tramo - Cruze Villa Adela",
       "lat": -16.534449,
       "lng": -68.190759,
       "es_terminal": true,

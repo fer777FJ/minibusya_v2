@@ -2,8 +2,8 @@
   "id": "linea_112",
   "sindicato": "Sindicato Aeropuerto",
   "numero_linea": "112",
-  "origen": "Punto Fin de ruta - Aeropuerto",
-  "destino": "Inicio de ruta - Fair Play Calle 2",
+  "origen": "Fin de tramo - Aeropuerto",
+  "destino": "Fin de tramo - Fair Play Calle 2",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 8.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_112_p01",
-      "nombre": "Punto Fin de ruta - Aeropuerto",
+      "nombre": "Fin de tramo - Aeropuerto",
       "lat": -16.508203,
       "lng": -68.177177,
       "es_terminal": true,
@@ -33,7 +33,7 @@
     },
     {
       "id": "linea_112_p03",
-      "nombre": "Inicio de ruta - Fair Play Calle 2",
+      "nombre": "Fin de tramo - Fair Play Calle 2",
       "lat": -16.506249,
       "lng": -68.16469,
       "es_terminal": true,

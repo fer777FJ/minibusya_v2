@@ -1,4 +1,6 @@
 // lib/controllers/mapa_controller.dart
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -16,6 +18,7 @@ class MapaController with ChangeNotifier {
   LatLng? _ubicacionUsuario;
   bool _cargandoUbicacion = false;
   String? _errorUbicacion;
+  StreamSubscription<Position>? _positionSubscription;
 
   final MapController mapController = MapController();
 
@@ -77,15 +80,47 @@ class MapaController with ChangeNotifier {
   }
 
   /// Solicita permisos y obtiene la ubicación actual del usuario
-  Future<void> obtenerUbicacion() async {
+  Future<void> obtenerUbicacion({BuildContext? context}) async {
     _cargandoUbicacion = true;
     _errorUbicacion = null;
     notifyListeners();
+
+    // Evitar llamadas de Geolocator en pruebas unitarias/de widgets
+    if (Platform.environment.containsKey('FLUTTER_TEST')) {
+      _ubicacionUsuario = _centroLaPaz;
+      _cargandoUbicacion = false;
+      notifyListeners();
+      return;
+    }
 
     try {
       // Verificar si el servicio GPS está habilitado
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
+        if (context != null && context.mounted) {
+          final abrirAjustes = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('GPS Desactivado'),
+              content: const Text(
+                'El GPS de tu dispositivo está desactivado. Para poder centrar el mapa y usar tu ubicación, debes activarlo.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text('Ir a Ajustes'),
+                ),
+              ],
+            ),
+          );
+          if (abrirAjustes == true) {
+            await Geolocator.openLocationSettings();
+          }
+        }
         _errorUbicacion = 'Activa el GPS de tu dispositivo';
         _cargandoUbicacion = false;
         notifyListeners();
@@ -105,6 +140,31 @@ class MapaController with ChangeNotifier {
       }
 
       if (permission == LocationPermission.deniedForever) {
+        if (context != null && context.mounted) {
+          final abrirConfig = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Permiso Denegado Permanentemente'),
+              content: const Text(
+                'Los permisos de ubicación están denegados permanentemente en tu dispositivo.\n\n'
+                'Debes activarlos desde la configuración de la aplicación para poder ver tu ubicación.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text('Abrir Ajustes'),
+                ),
+              ],
+            ),
+          );
+          if (abrirConfig == true) {
+            await Geolocator.openAppSettings();
+          }
+        }
         _errorUbicacion = 'Activa el permiso de ubicación en Ajustes';
         _cargandoUbicacion = false;
         notifyListeners();
@@ -118,12 +178,38 @@ class MapaController with ChangeNotifier {
 
       _ubicacionUsuario = LatLng(position.latitude, position.longitude);
       _centrarEnUbicacion(_ubicacionUsuario!);
+
+      // Iniciar el seguimiento continuo en tiempo real
+      _iniciarSeguimientoUbicacion();
     } catch (e) {
       _errorUbicacion = 'No se pudo obtener la ubicación';
     } finally {
       _cargandoUbicacion = false;
       notifyListeners();
     }
+  }
+
+  /// Inicializa la escucha de actualizaciones de ubicación en tiempo real
+  void _iniciarSeguimientoUbicacion() {
+    _positionSubscription?.cancel();
+
+    const locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 2, // Se actualiza cada 2 metros de movimiento
+    );
+
+    _positionSubscription = Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen(
+      (Position position) {
+        _ubicacionUsuario = LatLng(position.latitude, position.longitude);
+        _errorUbicacion = null;
+        notifyListeners();
+      },
+      onError: (e) {
+        debugPrint('❌ Error en el flujo de ubicación: $e');
+      },
+    );
   }
 
   void _centrarEnUbicacion(LatLng ubicacion) {
@@ -160,6 +246,7 @@ class MapaController with ChangeNotifier {
 
   @override
   void dispose() {
+    _positionSubscription?.cancel();
     mapController.dispose();
     super.dispose();
   }

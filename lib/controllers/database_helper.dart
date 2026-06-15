@@ -22,8 +22,9 @@ class DatabaseHelper {
 
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _crearTablas,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -50,7 +51,7 @@ class DatabaseHelper {
       )
     ''');
 
-    // Tabla de reportes comunitarios pendientes de envío
+    // Tabla de reportes comunitarios pendientes de envío (v2: incluye foto_path)
     await db.execute('''
       CREATE TABLE reportes_pendientes (
         id TEXT PRIMARY KEY,
@@ -60,9 +61,16 @@ class DatabaseHelper {
         descripcion TEXT,
         timestamp TEXT NOT NULL,
         ruta_afectada_id TEXT,
-        enviado INTEGER DEFAULT 0
+        enviado INTEGER DEFAULT 0,
+        foto_path TEXT
       )
     ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE reportes_pendientes ADD COLUMN foto_path TEXT');
+    }
   }
 
   // ─── FAVORITOS ────────────────────────────────────────────────────────────

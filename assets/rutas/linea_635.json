@@ -2,8 +2,8 @@
   "id": "linea_635",
   "sindicato": "Sindicato",
   "numero_linea": "635",
-  "origen": "PUNTO DE INICIO DE RECORRIDO PARADA 635",
-  "destino": "Punto de referencia - Inicio de regreso de ruta",
+  "origen": "Fin de tramo - Achachicalaya",
+  "destino": "Punto de referencia - Ex terminal",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_635_p01",
-      "nombre": "PUNTO DE INICIO DE RECORRIDO PARADA 635",
+      "nombre": "Fin de tramo - Achachicalaya",
       "lat": -16.506035,
       "lng": -68.218709,
       "es_terminal": true,
@@ -121,7 +121,7 @@
     },
     {
       "id": "linea_635_p14",
-      "nombre": "Punto de referencia - Inicio de regreso de ruta",
+      "nombre": "Fin de tramo - Ex Terminal",
       "lat": -16.508449,
       "lng": -68.165524,
       "es_terminal": true,

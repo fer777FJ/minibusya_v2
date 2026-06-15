@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import '../controllers/mapa_controller.dart';
 import '../controllers/database_helper.dart';
+import '../controllers/osrm_service.dart';
 import '../models/ruta_model.dart';
 import '../utils/app_theme.dart';
+import '../utils/distancia_helper.dart';
 import '../widgets/letrero_widget.dart';
 
 import 'package:latlong2/latlong.dart' show LatLng;
@@ -23,6 +25,11 @@ class _RouteDetailViewState extends State<RouteDetailView> {
   final DatabaseHelper _db = DatabaseHelper();
   bool _esFavorito = false;
 
+  // ─── NAVEGACIÓN INLINE ───────────────────────────────────────────────────
+  bool _cargandoNav = false;
+  List<LatLng> _puntosAPie = [];
+  PuntoDestino? _puntoDestino;
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +40,56 @@ class _RouteDetailViewState extends State<RouteDetailView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _mapaCtrl.centrarEnRuta(widget.ruta.coordenadas);
     });
+  }
+
+  @override
+  void dispose() {
+    _mapaCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _iniciarNavegacionInline() async {
+    // 1. Obtener ubicación del usuario
+    if (_mapaCtrl.ubicacionUsuario == null) {
+      await _mapaCtrl.obtenerUbicacion(context: context);
+    }
+    final usuario = _mapaCtrl.ubicacionUsuario;
+    if (usuario == null || !mounted) return;
+
+    setState(() {
+      _cargandoNav = true;
+      _puntosAPie = [];
+      _puntoDestino = null;
+    });
+
+    // 2. Calcular punto destino (polilínea o parada si es teleférico)
+    final destino = calcularPuntoDestino(usuario: usuario, ruta: widget.ruta);
+
+    // 3. Llamar a OSRM
+    final puntos = await OsrmService.rutaAPie(
+      origen: usuario,
+      destino: destino.punto,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _puntoDestino = destino;
+      _puntosAPie = puntos ?? [usuario, destino.punto]; // fallback línea recta
+      _cargandoNav = false;
+    });
+
+    // 4. Centrar mapa para ver usuario + destino
+    _mapaCtrl.mapController.move(usuario, 15.0);
+
+    if (puntos == null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('⚠️ Sin conexión: mostrando dirección directa'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   void _toggleFavorito() async {
@@ -128,53 +185,187 @@ class _RouteDetailViewState extends State<RouteDetailView> {
         ],
       ),
 
-      // ─── BOTÓN "SEGUIR RUTA" ─────────────────────────────────────────
+      // ─── BOTÓN "CÓMO LLEGAR" ─────────────────────────────────────────────
       bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: ElevatedButton.icon(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Modo navegación — próximamente'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Panel de navegación cuando está activo
+            if (_puntoDestino != null) _buildNavPanel(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: ElevatedButton.icon(
+                onPressed: _cargandoNav ? null : _iniciarNavegacionInline,
+                icon: _cargandoNav
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.directions_walk),
+                label: Text(
+                  _cargandoNav
+                      ? 'Calculando ruta…'
+                      : (_puntoDestino != null
+                          ? 'Recalcular ruta'
+                          : 'Cómo llegar a esta línea'),
                 ),
-              );
-            },
-            icon: const Icon(Icons.navigation),
-            label: const Text('Seguir Ruta'),
-          ),
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNavPanel() {
+    final d = _puntoDestino!;
+    final usuario = _mapaCtrl.ubicacionUsuario;
+    final dist = usuario != null
+        ? distanciaMetros(usuario, d.punto)
+        : d.distanciaM;
+    return Container(
+      color: Colors.blue.shade900,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          Icon(
+            d.esParadaOficial ? Icons.tram : Icons.directions_walk,
+            color: Colors.white,
+            size: 28,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  formatearDistancia(dist),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    height: 1.0,
+                  ),
+                ),
+                Text(
+                  d.nombre,
+                  style: const TextStyle(color: Colors.white70, fontSize: 11),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.white60),
+            onPressed: () => setState(() {
+              _puntoDestino = null;
+              _puntosAPie = [];
+            }),
+          ),
+        ],
       ),
     );
   }
 
   // Mini mapa con la polilínea de la ruta
   Widget _buildMapaMiniatura(RutaModel ruta) {
-    return FlutterMap(
-      mapController: _mapaCtrl.mapController,
-      options: MapOptions(
-        initialCenter: ruta.coordenadas.isNotEmpty
-            ? ruta.coordenadas[ruta.coordenadas.length ~/ 2]
-            : const LatLng_placeholder(),
-        initialZoom: 13.5,
-        interactionOptions: const InteractionOptions(
-          flags: InteractiveFlag.none, // Mapa no interactivo (miniatura)
+    return AnimatedBuilder(
+      animation: _mapaCtrl,
+      builder: (_, __) => FlutterMap(
+        mapController: _mapaCtrl.mapController,
+        options: MapOptions(
+          initialCenter: ruta.coordenadas.isNotEmpty
+              ? ruta.coordenadas[ruta.coordenadas.length ~/ 2]
+              : const LatLng_placeholder(),
+          initialZoom: 13.5,
+          interactionOptions: InteractionOptions(
+            // Interactivo solo cuando hay navegación activa
+            flags: _puntosAPie.isNotEmpty
+                ? InteractiveFlag.all
+                : InteractiveFlag.none,
+          ),
         ),
-      ),
-      children: [
-        _mapaCtrl.getTileLayer(offline: false), // Online para la miniatura
-        PolylineLayer(
-          polylines: [
-            Polyline(
-              points: ruta.coordenadas,
-              color: AppTheme.amarilloAccent,
-              strokeWidth: 4,
-              borderColor: AppTheme.azulPrimario,
-              borderStrokeWidth: 1,
+        children: [
+          _mapaCtrl.getTileLayer(offline: false),
+          // Polilínea de la ruta
+          PolylineLayer(
+            polylines: [
+              Polyline(
+                points: ruta.coordenadas,
+                color: AppTheme.amarilloAccent,
+                strokeWidth: 4,
+                borderColor: AppTheme.azulPrimario,
+                borderStrokeWidth: 1,
+              ),
+            ],
+          ),
+          // Polilínea de caminata (OSRM)
+          if (_puntosAPie.isNotEmpty)
+            PolylineLayer(
+              polylines: [
+                Polyline(
+                  points: _puntosAPie,
+                  color: Colors.white.withValues(alpha: 0.8),
+                  strokeWidth: 5.0,
+                ),
+                Polyline(
+                  points: _puntosAPie,
+                  color: Colors.blue,
+                  strokeWidth: 3.0,
+                ),
+              ],
             ),
-          ],
-        ),
-      ],
+          // Marcador destino
+          if (_puntoDestino != null)
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: _puntoDestino!.punto,
+                  width: 36,
+                  height: 36,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.blue,
+                      border: Border.all(color: Colors.white, width: 2.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withValues(alpha: 0.5),
+                          blurRadius: 8,
+                          spreadRadius: 3,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                        Icons.directions_walk, color: Colors.white, size: 18),
+                  ),
+                ),
+              ],
+            ),
+          // Marcador usuario
+          if (_mapaCtrl.ubicacionUsuario != null)
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: _mapaCtrl.ubicacionUsuario!,
+                  width: 20,
+                  height: 20,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.blue,
+                      border: Border.all(color: Colors.white, width: 2.5),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
     );
   }
 

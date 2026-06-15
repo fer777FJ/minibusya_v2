@@ -3,7 +3,7 @@
   "sindicato": "Sindicato 18 de Julio",
   "numero_linea": "782",
   "origen": "Inicio de Ruta - Cristal 1",
-  "destino": "Punto de referncia - Jusgado El Alto",
+  "destino": "Fin de tramo - Ceja calle 3",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -25,7 +25,7 @@
     },
     {
       "id": "linea_782_p02",
-      "nombre": "fin de Recorrido - Cristal 1",
+      "nombre": "Fin de Recorrido - Cristal 1",
       "lat": -16.595089,
       "lng": -68.199713,
       "es_terminal": false,
@@ -116,7 +116,7 @@
       "nombre": "Fin de tramo - Ceja calle 3",
       "lat": -16.507786,
       "lng": -68.16257,
-      "es_terminal": false,
+      "es_terminal": true,
       "orden_en_ruta": 13
     },
     {
@@ -124,7 +124,7 @@
       "nombre": "Punto de referncia - Jusgado El Alto",
       "lat": -16.516704,
       "lng": -68.165596,
-      "es_terminal": true,
+      "es_terminal": false,
       "orden_en_ruta": 14
     }
   ],

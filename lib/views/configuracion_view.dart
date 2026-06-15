@@ -16,6 +16,8 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
   bool _mostrarTrufi = true;
   bool _mostrarMicro = true;
   bool _mostrarPumaKatari = true;
+  bool _mostrarTeleferico = true;
+  bool _temaOscuro = false;
 
   @override
   void initState() {
@@ -33,6 +35,8 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
       _mostrarTrufi = prefs.getBool('mostrar_trufi') ?? true;
       _mostrarMicro = prefs.getBool('mostrar_micro') ?? true;
       _mostrarPumaKatari = prefs.getBool('mostrar_pumakatari') ?? true;
+      _mostrarTeleferico = prefs.getBool('mostrar_teleferico') ?? true;
+      _temaOscuro = prefs.getBool('tema_oscuro') ?? false;
     });
   }
 
@@ -48,17 +52,43 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
       body: ListView(
         children: [
 
-          // ── MAPA ──────────────────────────────────────────────
-          _seccion('Mapa'),
+          // ── TEMA Y MAPA ─────────────────────────────────────────
+          _seccion('Apariencia y Mapa'),
           SwitchListTile(
             secondary: const Icon(Icons.wifi_off),
             title: const Text('Modo Offline'),
             subtitle: const Text('Usa tiles descargados, sin internet'),
             value: _modoOffline,
-            activeThumbColor: AppTheme.azulPrimario,
+            activeThumbColor: Theme.of(context).primaryColor,
+            activeTrackColor: Theme.of(context).primaryColor.withOpacity(0.4),
+            inactiveThumbColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white70
+                : null,
+            inactiveTrackColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white24
+                : null,
             onChanged: (v) {
               setState(() => _modoOffline = v);
               _guardar('modo_offline', v);
+            },
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.dark_mode_outlined),
+            title: const Text('Tema Oscuro'),
+            subtitle: const Text('Naranja y negro (apagado = azul y blanco)'),
+            value: _temaOscuro,
+            activeThumbColor: Theme.of(context).primaryColor,
+            activeTrackColor: Theme.of(context).primaryColor.withOpacity(0.4),
+            inactiveThumbColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white70
+                : null,
+            inactiveTrackColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white24
+                : null,
+            onChanged: (v) {
+              setState(() => _temaOscuro = v);
+              _guardar('tema_oscuro', v);
+              AppTheme.themeNotifier.value = v ? ThemeMode.dark : ThemeMode.light;
             },
           ),
           const Divider(),
@@ -71,7 +101,14 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
             subtitle: const Text(
                 'Muestra la tarifa estudiantil como principal'),
             value: _mostrarTarifaEstudiante,
-            activeThumbColor: AppTheme.azulPrimario,
+            activeThumbColor: Theme.of(context).primaryColor,
+            activeTrackColor: Theme.of(context).primaryColor.withOpacity(0.4),
+            inactiveThumbColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white70
+                : null,
+            inactiveTrackColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white24
+                : null,
             onChanged: (v) {
               setState(() => _mostrarTarifaEstudiante = v);
               _guardar('tarifa_estudiante', v);
@@ -82,40 +119,85 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
           // ── TIPOS DE VEHÍCULO ─────────────────────────────────
           _seccion('Mostrar en el mapa'),
           CheckboxListTile(
-            secondary: const Icon(Icons.directions_bus),
+            secondary: const Text('🚐', style: TextStyle(fontSize: 24)),
             title: const Text('Minibus'),
             value: _mostrarMinibus,
-            activeColor: AppTheme.azulPrimario,
+            activeColor: Theme.of(context).primaryColor,
+            checkColor: Colors.white,
+            side: BorderSide(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white70
+                  : Colors.grey,
+              width: 2,
+            ),
             onChanged: (v) {
               setState(() => _mostrarMinibus = v!);
               _guardar('mostrar_minibus', v!);
             },
           ),
           CheckboxListTile(
-            secondary: const Icon(Icons.local_taxi),
+            secondary: const Text('🚗', style: TextStyle(fontSize: 24)),
             title: const Text('Trufi'),
             value: _mostrarTrufi,
-            activeColor: AppTheme.azulPrimario,
+            activeColor: Theme.of(context).primaryColor,
+            checkColor: Colors.white,
+            side: BorderSide(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white70
+                  : Colors.grey,
+              width: 2,
+            ),
             onChanged: (v) {
               setState(() => _mostrarTrufi = v!);
               _guardar('mostrar_trufi', v!);
             },
           ),
           CheckboxListTile(
-            secondary: const Icon(Icons.directions_bus_filled),
+            secondary: const Text('🚌', style: TextStyle(fontSize: 24)),
             title: const Text('Micro'),
             value: _mostrarMicro,
-            activeColor: AppTheme.azulPrimario,
+            activeColor: Theme.of(context).primaryColor,
+            checkColor: Colors.white,
+            side: BorderSide(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white70
+                  : Colors.grey,
+              width: 2,
+            ),
             onChanged: (v) {
               setState(() => _mostrarMicro = v!);
               _guardar('mostrar_micro', v!);
             },
           ),
           CheckboxListTile(
-            secondary: const Icon(Icons.directions_bus_rounded),
+            secondary: const Text('🚡', style: TextStyle(fontSize: 24)),
+            title: const Text('Teleferico'),
+            value: _mostrarTeleferico,
+            activeColor: Theme.of(context).primaryColor,
+            checkColor: Colors.white,
+            side: BorderSide(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white70
+                  : Colors.grey,
+              width: 2,
+            ),
+            onChanged: (v) {
+              setState(() => _mostrarTeleferico = v!);
+              _guardar('mostrar_teleferico', v!);
+            },
+          ),
+          CheckboxListTile(
+            secondary: const Text('🚍', style: TextStyle(fontSize: 24)),
             title: const Text('PumaKatari'),
             value: _mostrarPumaKatari,
-            activeColor: AppTheme.azulPrimario,
+            activeColor: Theme.of(context).primaryColor,
+            checkColor: Colors.white,
+            side: BorderSide(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white70
+                  : Colors.grey,
+              width: 2,
+            ),
             onChanged: (v) {
               setState(() => _mostrarPumaKatari = v!);
               _guardar('mostrar_pumakatari', v!);
@@ -139,11 +221,15 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
 
           // ── ACERCA DE ─────────────────────────────────────────
           _seccion('Acerca de'),
-          const ListTile(
-            leading: Icon(Icons.directions_bus,
-                color: AppTheme.azulPrimario),
-            title: Text('MiniBus Ya'),
-            subtitle: Text('Versión 1.0.0'),
+          ListTile(
+            leading: Icon(
+              Icons.directions_bus,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Theme.of(context).primaryColor,
+            ),
+            title: const Text('MiniBus Ya'),
+            subtitle: const Text('Versión 1.0.0'),
           ),
           const ListTile(
             leading: Icon(Icons.school_outlined),
@@ -157,14 +243,16 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
   }
 
   Widget _seccion(String titulo) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: Text(
         titulo.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: AppTheme.azulPrimario,
+          // En dark mode: blanco para que resalte sobre el fondo negro
+          color: isDark ? Colors.white : Theme.of(context).primaryColor,
           letterSpacing: 1.2,
         ),
       ),

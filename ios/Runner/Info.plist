@@ -66,5 +66,13 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Necesitamos acceso al micrófono para buscar rutas por voz.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Necesitamos reconocimiento de voz para buscar rutas por voz.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Necesitamos acceso a la cámara para reportar incidentes con fotos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Necesitamos acceso a tu galería para reportar incidentes con fotos.</string>
 </dict>
 </plist>

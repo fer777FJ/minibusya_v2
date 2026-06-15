@@ -16,5 +16,8 @@ void main() {
 
     // La app debería cargar sin errores
     expect(find.byType(MiniBusYaApp), findsOneWidget);
+
+    // Esperar a que el timer del splash screen (2 segundos) se complete
+    await tester.pump(const Duration(seconds: 3));
   });
 }

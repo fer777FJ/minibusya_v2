@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'utils/app_theme.dart';
 import 'views/home_view.dart';
 
@@ -11,11 +12,22 @@ void main() async {
   // Inicializar Firebase
   await Firebase.initializeApp();
 
+  // Cargar preferencia de tema antes de iniciar la app
+  final prefs = await SharedPreferences.getInstance();
+  final esOscuro = prefs.getBool('tema_oscuro') ?? false;
+  AppTheme.themeNotifier.value = esOscuro ? ThemeMode.dark : ThemeMode.light;
+
   // Solo orientación vertical (app de transporte en mano)
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  // Modo inmersivo: oculta los botones de navegación del sistema
+  // (atrás, home, recientes). Reaparecen brevemente al deslizar desde el borde.
+  await SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.immersiveSticky,
+  );
 
   // Barra de estado transparente para el mapa
   SystemChrome.setSystemUIOverlayStyle(
@@ -33,11 +45,18 @@ class MiniBusYaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'MiniBus Ya',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.tema,
-      home: const SplashScreen(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: AppTheme.themeNotifier,
+      builder: (context, currentMode, _) {
+        return MaterialApp(
+          title: 'MiniBus Ya',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.temaClaro,
+          darkTheme: AppTheme.temaOscuro,
+          themeMode: currentMode,
+          home: const SplashScreen(),
+        );
+      },
     );
   }
 }

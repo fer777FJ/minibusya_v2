@@ -4,8 +4,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../controllers/mapa_controller.dart';
 import '../controllers/rutas_controller.dart';
+import '../controllers/osrm_service.dart';
 import '../models/ruta_model.dart';
 import '../utils/app_theme.dart';
+import '../utils/distancia_helper.dart';
 import '../widgets/letrero_widget.dart';
 import 'search_results_view.dart';
 import 'report_view.dart';
@@ -15,6 +17,7 @@ import 'favoritos_view.dart';
 import 'historial_view.dart';
 import 'configuracion_view.dart';
 import 'chatbot_view.dart';
+import '../utils/voice_search_helper.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -33,6 +36,15 @@ class _HomeViewState extends State<HomeView> {
   bool _mostrarOffline =
       false; // ← false = OSM online, true = tiles offline (MOBAC)
 
+  // ─── NAVEGACIÓN ────────────────────────────────────────────────────────
+  bool _modoNavegacion = false;
+  bool _cargandoRutaAPie = false;
+  List<LatLng> _puntosRutaAPie = [];
+  PuntoDestino? _puntoDestino;
+
+  // Última posición usada para calcular la ruta a pie (para detectar cambios)
+  LatLng? _ultimaPosicionRuta;
+
   // ─── FILTROS DE TIPO DE VEHÍCULO ──────────────────────────────────────
   Set<String> _tiposDisponibles = {}; // Tipos que existen en las rutas
   Set<String> _tiposSeleccionados = {'Minibus'}; // Por defecto, Minibus activo
@@ -42,6 +54,57 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     _cargarRutasYFiltros();
     _mapaCtrl.obtenerUbicacion();
+    // Escuchar cambios de ubicación para recalcular la ruta a pie en tiempo real
+    _mapaCtrl.addListener(_onUbicacionCambiada);
+  }
+
+  @override
+  void dispose() {
+    _mapaCtrl.removeListener(_onUbicacionCambiada);
+    _mapaCtrl.dispose();
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  /// Se llama cada vez que el MapaController notifica un cambio (incl. GPS).
+  /// Si estamos en modo navegación y el usuario se movió más de 10 m,
+  /// recalcula la ruta a pie automáticamente.
+  void _onUbicacionCambiada() {
+    if (!_modoNavegacion) return;
+    if (_cargandoRutaAPie) return;
+    final nuevaPos = _mapaCtrl.ubicacionUsuario;
+    if (nuevaPos == null || _puntoDestino == null) return;
+
+    // Solo recalcular si el usuario se movió más de 10 metros
+    if (_ultimaPosicionRuta != null) {
+      final delta = distanciaMetros(_ultimaPosicionRuta!, nuevaPos);
+      if (delta < 10) return;
+    }
+
+    _recalcularRutaAPie(nuevaPos);
+  }
+
+  /// Recalcula la ruta a pie desde la posición actual hasta el destino.
+  Future<void> _recalcularRutaAPie(LatLng origen) async {
+    if (_puntoDestino == null) return;
+    _ultimaPosicionRuta = origen;
+    setState(() => _cargandoRutaAPie = true);
+
+    final puntos = await OsrmService.rutaAPie(
+      origen: origen,
+      destino: _puntoDestino!.punto,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      if (puntos != null && puntos.isNotEmpty) {
+        _puntosRutaAPie = puntos;
+      } else {
+        // Fallback: línea recta si OSRM falla
+        _puntosRutaAPie = [origen, _puntoDestino!.punto];
+      }
+      _cargandoRutaAPie = false;
+    });
   }
 
   Future<void> _cargarRutasYFiltros() async {
@@ -56,6 +119,104 @@ class _HomeViewState extends State<HomeView> {
   Future<void> _aplicarFiltros() async {
     final rutas = await _rutasCtrl.filtrarPorTipo(_tiposSeleccionados.toList());
     if (mounted) setState(() => _rutasVisibles = rutas);
+  }
+
+  // ─── NAVEGACIÓN: calcular destino y pedir ruta OSRM ───────────────────
+
+  Future<void> _iniciarNavegacion() async {
+    final usuario = _mapaCtrl.ubicacionUsuario;
+    final ruta = _rutaSeleccionada;
+
+    if (usuario == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Activa tu ubicación primero 📍')),
+      );
+      return;
+    }
+    if (ruta == null) return;
+
+    if (_mostrarOffline) {
+      final continuar = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.signal_wifi_statusbar_connected_no_internet_4, color: Colors.orange),
+              SizedBox(width: 8),
+              Text('Precisión de calles'),
+            ],
+          ),
+          content: const Text(
+            'Para mayor precisión en calles, conéctese a una red.\n\n'
+            'Tu ubicación GPS funciona de todas formas, pero la ruta '
+            'seguirá calles reales solo con conexión a internet (OSRM).\n\n'
+            '¿Deseas activar el modo online para trazar la ruta por calles?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Continuar sin red'),
+            ),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.wifi),
+              label: const Text('Activar Online'),
+              onPressed: () {
+                setState(() => _mostrarOffline = false);
+                Navigator.pop(ctx, true);
+              },
+            ),
+          ],
+        ),
+      );
+      if (continuar != true) return;
+    }
+
+    final destino = calcularPuntoDestino(usuario: usuario, ruta: ruta);
+
+    setState(() {
+      _cargandoRutaAPie = true;
+      _puntoDestino = destino;
+      _puntosRutaAPie = [];
+    });
+
+    final puntos = await OsrmService.rutaAPie(
+      origen: usuario,
+      destino: destino.punto,
+    );
+
+    if (!mounted) return;
+
+    if (puntos == null || puntos.isEmpty) {
+      setState(() {
+        _puntosRutaAPie = [usuario, destino.punto];
+        _cargandoRutaAPie = false;
+        _modoNavegacion = true;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('⚠️ No se pudo calcular ruta exacta, mostrando dirección directa'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } else {
+      setState(() {
+        _puntosRutaAPie = puntos;
+        _cargandoRutaAPie = false;
+        _modoNavegacion = true;
+      });
+    }
+
+    _mapaCtrl.mapController.move(usuario, 15.5);
+  }
+
+  void _cancelarNavegacion() {
+    setState(() {
+      _modoNavegacion = false;
+      _puntosRutaAPie = [];
+      _puntoDestino = null;
+      _cargandoRutaAPie = false;
+      _ultimaPosicionRuta = null;
+    });
   }
 
   void _onSearchSubmit(String texto) {
@@ -99,13 +260,25 @@ class _HomeViewState extends State<HomeView> {
             child: _buildBottomSheet(),
           ),
 
-          // ─── PANEL DE RUTA SELECCIONADA ───────────────────────────────────
-          if (_rutaSeleccionada != null)
+          // ─── PANEL DE RUTA SELECCIONADA ───────────────────────────────────────────────
+          if (_rutaSeleccionada != null && !_modoNavegacion)
             Positioned(
               bottom: 120,
               left: 12,
               right: 12,
               child: _buildRutaSeleccionadaCard(),
+            ),
+
+          // ─── PANEL DE NAVEGACIÓN ACTIVA ───────────────────────────────────────────────
+          if (_modoNavegacion && _puntoDestino != null)
+            Positioned(
+              bottom: 110,
+              left: 12,
+              right: 12,
+              child: AnimatedBuilder(
+                animation: _mapaCtrl,
+                builder: (_, __) => _buildPanelNavegacion(),
+              ),
             ),
 
           // ─── FAB CHATBOT (IZQUIERDA) ──────────────────────────────────────
@@ -116,9 +289,11 @@ class _HomeViewState extends State<HomeView> {
               heroTag: 'chatbot',
               onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const ChatbotView()),
+                MaterialPageRoute(
+                  builder: (_) => ChatbotView(offlineMode: _mostrarOffline),
+                ),
               ),
-              backgroundColor: AppTheme.azulPrimario,
+              backgroundColor: Theme.of(context).primaryColor,
               tooltip: 'Asistente de rutas',
               child: const Icon(Icons.chat_outlined, color: Colors.white),
             ),
@@ -173,7 +348,7 @@ class _HomeViewState extends State<HomeView> {
           polylines: _rutasVisibles.map((ruta) {
             return Polyline(
               points: ruta.coordenadas,
-              color: AppTheme.azulSecundario.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
               strokeWidth: 2.5,
             );
           }).toList(),
@@ -198,7 +373,37 @@ class _HomeViewState extends State<HomeView> {
           markers: _buildMarcadoresParadas(),
         ),
 
-        // 5️⃣  Marcador de la ubicación del usuario
+        // 5️⃣  Polilínea de caminata (OSRM, azul con borde blanco)
+        if (_puntosRutaAPie.isNotEmpty)
+          PolylineLayer(
+            polylines: [
+              Polyline(
+                points: _puntosRutaAPie,
+                color: Colors.white.withValues(alpha: 0.8),
+                strokeWidth: 6.0,
+              ),
+              Polyline(
+                points: _puntosRutaAPie,
+                color: Colors.blue,
+                strokeWidth: 3.5,
+              ),
+            ],
+          ),
+
+        // 6️⃣  Marcador del punto destino de navegación
+        if (_puntoDestino != null)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: _puntoDestino!.punto,
+                width: 44,
+                height: 44,
+                child: _buildMarcadorDestino(),
+              ),
+            ],
+          ),
+
+        // 7️⃣  Marcador de la ubicación del usuario
         if (_mapaCtrl.ubicacionUsuario != null)
           MarkerLayer(
             markers: [
@@ -227,6 +432,24 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  Widget _buildMarcadorDestino() {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.blue,
+        border: Border.all(color: Colors.white, width: 3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.5),
+            blurRadius: 12,
+            spreadRadius: 4,
+          ),
+        ],
+      ),
+      child: const Icon(Icons.directions_walk, color: Colors.white, size: 22),
+    );
+  }
+
   List<Marker> _buildMarcadoresParadas() {
     final rutasMostrar =
         _rutaSeleccionada != null ? [_rutaSeleccionada!] : _rutasVisibles;
@@ -237,8 +460,8 @@ class _HomeViewState extends State<HomeView> {
         markers.add(
           Marker(
             point: parada.latLng,
-            width: parada.esTerminal ? 36 : 16,
-            height: parada.esTerminal ? 36 : 16,
+            width: parada.esTerminal ? 64 : 16,
+            height: parada.esTerminal ? 30 : 16,
             child: GestureDetector(
               onTap: () => _mostrarInfoParada(parada, ruta),
               child: parada.esTerminal
@@ -324,18 +547,21 @@ class _HomeViewState extends State<HomeView> {
   // ─── SEARCH BAR ───────────────────────────────────────────────────────────
 
   Widget _buildSearchBar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
       elevation: 6,
       borderRadius: BorderRadius.circular(12),
+      color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
       child: TextField(
         controller: _searchCtrl,
         onSubmitted: _onSearchSubmit,
+        style: TextStyle(color: isDark ? Colors.white : AppTheme.negro),
         decoration: InputDecoration(
           hintText: '¿A dónde vas?',
           hintStyle: const TextStyle(color: AppTheme.grisTexto),
           prefixIcon: Builder(
             builder: (ctx) => IconButton(
-              icon: const Icon(Icons.menu),
+              icon: Icon(Icons.menu, color: isDark ? Colors.white70 : Colors.black87),
               onPressed: () => Scaffold.of(ctx).openDrawer(),
             ),
           ),
@@ -343,11 +569,19 @@ class _HomeViewState extends State<HomeView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.mic_outlined),
-                onPressed: () {/* TODO: integrar speech_to_text */},
+                icon: Icon(Icons.mic_outlined, color: isDark ? Colors.white70 : Colors.black87),
+                onPressed: () {
+                  VoiceSearchHelper.escucharVoz(
+                    context,
+                    onResult: (texto) {
+                      _searchCtrl.text = texto;
+                      _onSearchSubmit(texto);
+                    },
+                  );
+                },
               ),
               IconButton(
-                icon: const Icon(Icons.search),
+                icon: Icon(Icons.search, color: isDark ? Colors.white70 : Colors.black87),
                 onPressed: () => _onSearchSubmit(_searchCtrl.text),
               ),
             ],
@@ -357,7 +591,7 @@ class _HomeViewState extends State<HomeView> {
             borderSide: BorderSide.none,
           ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
         ),
       ),
     );
@@ -372,22 +606,26 @@ class _HomeViewState extends State<HomeView> {
         final cargando = _mapaCtrl.cargandoUbicacion;
         final conUbicacion = _mapaCtrl.ubicacionUsuario != null;
 
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
         return FloatingActionButton.small(
           heroTag: 'ubicacion',
-          backgroundColor: Colors.white,
-          foregroundColor:
-              conUbicacion ? AppTheme.verdeOk : AppTheme.azulPrimario,
-          onPressed: cargando ? null : _mapaCtrl.obtenerUbicacion,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          foregroundColor: conUbicacion
+              ? AppTheme.verdeOk
+              : (isDarkMode ? Colors.white : Theme.of(context).primaryColor),
+          onPressed: cargando
+              ? null
+              : () => _mapaCtrl.obtenerUbicacion(context: context),
           // Efecto visual: sombra más pronunciada cuando tiene ubicación
           elevation: conUbicacion ? 8 : 2,
           child: cargando
-              ? const SizedBox(
+              ? SizedBox(
                   width: 18,
                   height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(AppTheme.azulPrimario),
+                        AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
                   ),
                 )
               : Stack(
@@ -417,12 +655,13 @@ class _HomeViewState extends State<HomeView> {
   // ─── BOTTOM SHEET ─────────────────────────────────────────────────────────
 
   Widget _buildBottomSheet() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: 100,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
+      decoration: BoxDecoration(
+        color: isDark ? Theme.of(context).primaryColor : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10)],
       ),
       child: Column(
         children: [
@@ -431,7 +670,7 @@ class _HomeViewState extends State<HomeView> {
             height: 4,
             margin: const EdgeInsets.only(top: 8),
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: isDark ? Colors.white54 : Colors.grey[300],
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -441,12 +680,11 @@ class _HomeViewState extends State<HomeView> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
-                _buildFiltroChipInteractivo('Minibus', Icons.directions_bus),
-                _buildFiltroChipInteractivo('Trufi', Icons.local_taxi),
-                _buildFiltroChipInteractivo(
-                    'Micro', Icons.directions_bus_filled),
-                _buildFiltroChipInteractivo(
-                    'PumaKatari', Icons.directions_bus_rounded),
+                _buildFiltroChipInteractivo('Minibus', '🚐'),
+                _buildFiltroChipInteractivo('Trufi', '🚗'),
+                _buildFiltroChipInteractivo('Micro', '🚌'),
+                _buildFiltroChipInteractivo('Teleferico', '🚡'),
+                _buildFiltroChipInteractivo('PumaKatari', '🚍'),
               ],
             ),
           ),
@@ -455,13 +693,51 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildFiltroChipInteractivo(String label, IconData icon) {
+  Widget _buildFiltroChipInteractivo(String label, String emoji) {
     final seleccionado = _tiposSeleccionados.contains(label);
-    // Solo mostrar si el tipo está disponible en las rutas
     final disponible = _tiposDisponibles.contains(label);
 
     if (!disponible) {
-      return const SizedBox.shrink(); // No mostrar si no hay rutas
+      return const SizedBox.shrink();
+    }
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    Color chipBgColor;
+    Color chipBorderColor;
+    Color textColor;
+    List<BoxShadow>? shadow;
+
+    if (isDark) {
+      chipBgColor = seleccionado 
+          ? Colors.white 
+          : Colors.white.withOpacity(0.2);
+      chipBorderColor = seleccionado ? Colors.white : Colors.transparent;
+      textColor = seleccionado ? Colors.white : Colors.white70;
+      shadow = seleccionado
+          ? [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 6,
+                spreadRadius: 1,
+              )
+            ]
+          : null;
+    } else {
+      chipBgColor = seleccionado 
+          ? Theme.of(context).primaryColor.withOpacity(0.15) 
+          : AppTheme.blancoFondo;
+      chipBorderColor = seleccionado ? Theme.of(context).primaryColor : Colors.transparent;
+      textColor = seleccionado ? Theme.of(context).primaryColor : AppTheme.grisTexto;
+      shadow = seleccionado
+          ? [
+              BoxShadow(
+                color: Theme.of(context).primaryColor.withOpacity(0.2),
+                blurRadius: 8,
+                spreadRadius: 1,
+              )
+            ]
+          : null;
     }
 
     return GestureDetector(
@@ -480,25 +756,21 @@ class _HomeViewState extends State<HomeView> {
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color:
-                  seleccionado ? AppTheme.azulPrimario : AppTheme.blancoFondo,
-              boxShadow: seleccionado
-                  ? [
-                      BoxShadow(
-                        color: AppTheme.azulPrimario.withOpacity(0.3),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      )
-                    ]
-                  : null,
+              color: chipBgColor,
+              border: Border.all(
+                color: chipBorderColor,
+                width: 2,
+              ),
+              boxShadow: shadow,
             ),
-            child: Icon(
-              icon,
-              color: seleccionado ? Colors.white : AppTheme.grisTexto,
-              size: 22,
+            child: Text(
+              emoji,
+              style: const TextStyle(
+                fontSize: 24,
+              ),
             ),
           ),
           const SizedBox(height: 4),
@@ -506,48 +778,12 @@ class _HomeViewState extends State<HomeView> {
             label,
             style: TextStyle(
               fontSize: 10,
-              color: seleccionado ? AppTheme.azulPrimario : AppTheme.grisTexto,
+              color: textColor,
               fontWeight: seleccionado ? FontWeight.bold : FontWeight.normal,
             ),
           ),
-          if (_tiposSeleccionados.isEmpty)
-            Text(
-              '(sin filtro)',
-              style: TextStyle(
-                fontSize: 8,
-                color: Colors.grey[400],
-                fontStyle: FontStyle.italic,
-              ),
-            ),
         ],
       ),
-    );
-  }
-
-  Widget _buildFiltroChip(String label, IconData icon, bool activo) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CircleAvatar(
-          radius: 22,
-          backgroundColor:
-              activo ? AppTheme.azulPrimario : AppTheme.blancoFondo,
-          child: Icon(
-            icon,
-            color: activo ? Colors.white : AppTheme.grisTexto,
-            size: 20,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: activo ? AppTheme.azulPrimario : AppTheme.grisTexto,
-            fontWeight: activo ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ],
     );
   }
 
@@ -558,40 +794,73 @@ class _HomeViewState extends State<HomeView> {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            LetreroWidget(
-              numeroLinea: ruta.numeroLinea,
-              destino: ruta.destino,
-              colorHex: ruta.colorHex,
-              colorTextoHex: ruta.colorTextoHex,
+            Row(
+              children: [
+                LetreroWidget(
+                  numeroLinea: ruta.numeroLinea,
+                  destino: ruta.destino,
+                  colorHex: ruta.colorHex,
+                  colorTextoHex: ruta.colorTextoHex,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(ruta.sindicato,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        '${ruta.origen} → ${ruta.destino}',
+                        style: const TextStyle(
+                            fontSize: 12, color: AppTheme.grisTexto),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        'Bs. ${ruta.tarifaNormal.toStringAsFixed(1)} normal  •  '
+                        'Bs. ${ruta.tarifaEstudiantil.toStringAsFixed(1)} estudiante',
+                        style: TextStyle(
+                            fontSize: 11, color: Theme.of(context).primaryColor),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    setState(() => _rutaSeleccionada = null);
+                    _cancelarNavegacion();
+                  },
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(ruta.sindicato,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Text(
-                    '${ruta.origen} → ${ruta.destino}',
-                    style: const TextStyle(
-                        fontSize: 12, color: AppTheme.grisTexto),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    'Bs. ${ruta.tarifaNormal.toStringAsFixed(1)} normal  •  '
-                    'Bs. ${ruta.tarifaEstudiantil.toStringAsFixed(1)} estudiante',
-                    style: const TextStyle(
-                        fontSize: 11, color: AppTheme.azulPrimario),
-                  ),
-                ],
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _cargandoRutaAPie ? null : _iniciarNavegacion,
+                icon: _cargandoRutaAPie
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.directions_walk),
+                label: Text(
+                  _cargandoRutaAPie
+                      ? 'Calculando ruta…'
+                      : '🧭 Cómo llegar a la línea',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                ),
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => setState(() => _rutaSeleccionada = null),
             ),
           ],
         ),
@@ -599,30 +868,175 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  // ─── PANEL DE NAVEGACIÓN ACTIVA ──────────────────────────────────────────
+
+  Widget _buildPanelNavegacion() {
+    final destino = _puntoDestino!;
+    final ruta = _rutaSeleccionada!;
+    final usuario = _mapaCtrl.ubicacionUsuario;
+    final distActual = usuario != null
+        ? distanciaMetros(usuario, destino.punto)
+        : destino.distanciaM;
+
+    return Card(
+      color: Colors.blue.shade900,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Encabezado
+            Row(
+              children: [
+                const Icon(Icons.navigation, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'NAVEGANDO A PIE',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: _cancelarNavegacion,
+                  child: const Icon(Icons.close, color: Colors.white70, size: 20),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Distancia grande
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  formatearDistancia(distActual),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    'caminando',
+                    style: TextStyle(color: Colors.white60, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+
+            // Destino
+            Row(
+              children: [
+                Icon(
+                  destino.esParadaOficial ? Icons.tram : Icons.directions_bus,
+                  color: Colors.blue.shade200,
+                  size: 16,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    destino.nombre,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.route, color: Colors.white38, size: 14),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Línea ${ruta.numeroLinea} — ${ruta.destino}',
+                    style: const TextStyle(color: Colors.white54, fontSize: 11),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Nota informativa
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.info_outline, size: 13, color: Colors.white60),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      destino.esParadaOficial
+                          ? 'Dirígete a la estación de teleférico'
+                          : 'Dirígete al punto del recorrido del transporte',
+                      style: const TextStyle(color: Colors.white60, fontSize: 10),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   // ─── DRAWER ───────────────────────────────────────────────────────────────
 
   Widget _buildDrawer() {
     return Drawer(
       child: ListView(
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: AppTheme.azulPrimario),
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark 
+                  ? Theme.of(context).colorScheme.surface 
+                  : Theme.of(context).primaryColor,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(Icons.directions_bus, color: Colors.white, size: 40),
-                SizedBox(height: 8),
+                Icon(
+                  Icons.directions_bus,
+                  color: Colors.white,
+                  size: 40,
+                ),
+                const SizedBox(height: 8),
                 Text(
                   'MiniBus Ya',
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold),
                 ),
                 Text(
                   'La Paz · El Alto · Bolivia',
-                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                  style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.white70 
+                          : Colors.white70, 
+                      fontSize: 13),
                 ),
               ],
             ),
@@ -696,15 +1110,21 @@ class _HomeViewState extends State<HomeView> {
             onTap: () => setState(() => _mostrarOffline = !_mostrarOffline),
           ),
           ListTile(
-            leading:
-                const Icon(Icons.chat_outlined, color: AppTheme.azulPrimario),
+            leading: Icon(
+              Icons.chat_outlined,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppTheme.azulPrimario,
+            ),
             title: const Text('Asistente MiniBus Bot'),
             subtitle: const Text('Pregunta cómo llegar a tu destino'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const ChatbotView()),
+                MaterialPageRoute(
+                  builder: (_) => ChatbotView(offlineMode: _mostrarOffline),
+                ),
               );
             },
           ),

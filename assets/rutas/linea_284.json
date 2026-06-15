@@ -2,8 +2,8 @@
   "id": "linea_284",
   "sindicato": "Sindicato Distrito 14",
   "numero_linea": "284",
-  "origen": "Punto fin de ruta - Bautista Saavedra",
-  "destino": "Punto Inicio de Ruta -  Ex  Parada 8",
+  "origen": "Fin de tramo - Bautista Saavedra",
+  "destino": "Fin de tramo - Ex Parada 8",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_284_p01",
-      "nombre": "Punto fin de ruta - Bautista Saavedra",
+      "nombre": "Fin de tramo - Bautista Saavedra",
       "lat": -16.488195,
       "lng": -68.232402,
       "es_terminal": true,
@@ -33,7 +33,7 @@
     },
     {
       "id": "linea_284_p03",
-      "nombre": "Punto Inicio de Ruta -  Ex  Parada 8",
+      "nombre": "Fin de tramo - Ex Parada 8",
       "lat": -16.485664,
       "lng": -68.228349,
       "es_terminal": true,

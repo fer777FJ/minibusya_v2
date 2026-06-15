@@ -2,8 +2,8 @@
   "id": "linea_824",
   "sindicato": "Sindicato Satelite",
   "numero_linea": "824",
-  "origen": "Punto Fin de Ruta - Rotonda Bolivia",
-  "destino": "Punto Inicio de ruta - Calle 2 Ceja",
+  "origen": "Fin de tramo - Rotonda Bolivia",
+  "destino": "Fin de tramo - Calle 2 Ceja",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_824_p01",
-      "nombre": "Punto Fin de Ruta - Rotonda Bolivia",
+      "nombre": "Fin de tramo - Rotonda Bolivia",
       "lat": -16.545852,
       "lng": -68.174923,
       "es_terminal": true,
@@ -89,7 +89,7 @@
     },
     {
       "id": "linea_824_p10",
-      "nombre": "Punto Inicio de ruta - Calle 2 Ceja",
+      "nombre": "Fin de tramo - Calle 2 Ceja",
       "lat": -16.507189,
       "lng": -68.160611,
       "es_terminal": true,

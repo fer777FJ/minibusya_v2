@@ -2,8 +2,8 @@
   "id": "linea_101",
   "sindicato": "Sindicato Villa Adela",
   "numero_linea": "101",
-  "origen": "Cruce Villa Adela",
-  "destino": "Puente Bolivia",
+  "origen": "Fin de tramo - Cruce Villa Adela",
+  "destino": "Fin de tramo - Puente Bolivia",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 4.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_101_p01",
-      "nombre": "Cruce Villa Adela",
+      "nombre": "Fin de tramo - Cruce Villa Adela",
       "lat": -16.534807,
       "lng": -68.190197,
       "es_terminal": true,
@@ -41,7 +41,7 @@
     },
     {
       "id": "linea_101_p04",
-      "nombre": "Puente Bolivia",
+      "nombre": "Fin de tramo - Puente Bolivia",
       "lat": -16.545112,
       "lng": -68.177108,
       "es_terminal": true,

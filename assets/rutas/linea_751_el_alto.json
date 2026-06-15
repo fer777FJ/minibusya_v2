@@ -2,8 +2,8 @@
   "id": "linea_751",
   "sindicato": "Sindicato Pedro Domingo Murillo",
   "numero_linea": "751",
-  "origen": "Col. Cristal 1",
-  "destino": "Calle 2",
+  "origen": "Fin de tramo - Senkata",
+  "destino": "Fin de tramo - Ceja calle 2",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_751_p01",
-      "nombre": "Cristal 1",
+      "nombre": "Fin de tramo - Senkata",
       "lat": -16.594621,
       "lng": -68.20179,
       "es_terminal": true,
@@ -73,7 +73,7 @@
     },
     {
       "id": "linea_751_p08",
-      "nombre": "Calle 2",
+      "nombre": "Fin de tramo - Ceja calle 2",
       "lat": -16.50615,
       "lng": -68.163595,
       "es_terminal": true,

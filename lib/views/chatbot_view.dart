@@ -2,9 +2,11 @@
 import 'package:flutter/material.dart';
 import '../controllers/chatbot_service.dart';
 import '../utils/app_theme.dart';
+import '../utils/voice_search_helper.dart';
 
 class ChatbotView extends StatefulWidget {
-  const ChatbotView({super.key});
+  final bool offlineMode;
+  const ChatbotView({super.key, this.offlineMode = false});
 
   @override
   State<ChatbotView> createState() => _ChatbotViewState();
@@ -29,14 +31,21 @@ class _ChatbotViewState extends State<ChatbotView> {
     // Mensaje de bienvenida
     setState(() {
       _mensajes.add(_Mensaje(
-        texto: '¡Hola! 👋 Soy MiniBus Bot. '
-            'Pregúntame cómo llegar a cualquier lugar de '
-            'La Paz o El Alto y te ayudo a encontrar tu ruta. 🚌',
+        texto: widget.offlineMode // Condicional para mensaje offline
+            ? '¡Hola! 👋 Soy MiniBus Bot en Modo Offline 📴. '
+                'Pregúntame cómo llegar a cualquier lugar de '
+                'La Paz o El Alto y buscaré tu ruta en la base de datos offline. 🚌'
+            : '¡Hola! 👋 Soy MiniBus Bot. '
+                'Pregúntame cómo llegar a cualquier lugar de '
+                'La Paz o El Alto y te ayudo a encontrar tu ruta. 🚌',
         esBot: true,
       ));
     });
 
-    await _chatbot.inicializar();
+    // Solo inicializar Gemini si no estamos forzando el modo offline
+    if (!widget.offlineMode) {
+      await _chatbot.inicializar();
+    }
     setState(() => _inicializado = true);
   }
 
@@ -52,8 +61,8 @@ class _ChatbotViewState extends State<ChatbotView> {
     _inputCtrl.clear();
     _scrollAlFinal();
 
-    // Obtener respuesta de Gemini
-    final respuesta = await _chatbot.enviarMensaje(texto);
+    // Obtener respuesta de la IA (online u offline)
+    final respuesta = await _chatbot.enviarMensaje(texto, forceOffline: widget.offlineMode); // Modificado
 
     setState(() {
       _mensajes.add(_Mensaje(texto: respuesta, esBot: true));
@@ -155,23 +164,27 @@ class _ChatbotViewState extends State<ChatbotView> {
     ];
 
     return SizedBox(
-      height: 40,
-      child: ListView.separated(
+      height: 48,
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         itemCount: sugerencias.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (_, i) => ActionChip(
-          label: Text(sugerencias[i],
-              style: const TextStyle(fontSize: 12)),
-          backgroundColor: AppTheme.azulPrimario.withOpacity(0.1),
-          side: BorderSide(
-              color: AppTheme.azulPrimario.withOpacity(0.3)),
-          onPressed: () {
-            _inputCtrl.text = sugerencias[i];
-            _enviar();
-          },
-        ),
+        itemBuilder: (_, i) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: ActionChip(
+              label: Text(sugerencias[i],
+                  style: const TextStyle(fontSize: 12)),
+              backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+              side: BorderSide(
+                  color: Theme.of(context).primaryColor.withOpacity(0.3)),
+              onPressed: () {
+                _inputCtrl.text = sugerencias[i];
+                _enviar();
+              },
+            ),
+          );
+        },
       ),
     );
   }
@@ -179,6 +192,7 @@ class _ChatbotViewState extends State<ChatbotView> {
   // Burbuja de mensaje
   Widget _buildBurbuja(_Mensaje mensaje) {
     final esBot = mensaje.esBot;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -187,10 +201,10 @@ class _ChatbotViewState extends State<ChatbotView> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (esBot) ...[
-            const CircleAvatar(
+            CircleAvatar(
               radius: 14,
-              backgroundColor: AppTheme.azulPrimario,
-              child: Icon(Icons.directions_bus,
+              backgroundColor: Theme.of(context).primaryColor,
+              child: const Icon(Icons.directions_bus,
                   size: 14, color: Colors.white),
             ),
             const SizedBox(width: 6),
@@ -201,8 +215,8 @@ class _ChatbotViewState extends State<ChatbotView> {
                   horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: esBot
-                    ? Colors.white
-                    : AppTheme.azulPrimario,
+                    ? (isDark ? Theme.of(context).colorScheme.surface : Colors.white)
+                    : Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -220,7 +234,9 @@ class _ChatbotViewState extends State<ChatbotView> {
               child: Text(
                 mensaje.texto,
                 style: TextStyle(
-                  color: esBot ? AppTheme.negro : Colors.white,
+                  color: esBot 
+                      ? (isDark ? Colors.white : AppTheme.negro) 
+                      : Colors.white,
                   fontSize: 14,
                   height: 1.4,
                 ),
@@ -229,11 +245,11 @@ class _ChatbotViewState extends State<ChatbotView> {
           ),
           if (!esBot) ...[
             const SizedBox(width: 6),
-            const CircleAvatar(
+            CircleAvatar(
               radius: 14,
-              backgroundColor: AppTheme.amarilloAccent,
-              child: Icon(Icons.person,
-                  size: 14, color: AppTheme.negro),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              child: const Icon(Icons.person,
+                  size: 14, color: Colors.white),
             ),
           ],
         ],
@@ -243,14 +259,15 @@ class _ChatbotViewState extends State<ChatbotView> {
 
   // Indicador "escribiendo..."
   Widget _buildIndicadorEscribiendo() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 14,
-            backgroundColor: AppTheme.azulPrimario,
-            child: Icon(Icons.directions_bus,
+            backgroundColor: Theme.of(context).primaryColor,
+            child: const Icon(Icons.directions_bus,
                 size: 14, color: Colors.white),
           ),
           const SizedBox(width: 6),
@@ -258,7 +275,7 @@ class _ChatbotViewState extends State<ChatbotView> {
             padding: const EdgeInsets.symmetric(
                 horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -293,7 +310,7 @@ class _ChatbotViewState extends State<ChatbotView> {
         height: 8,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppTheme.azulPrimario
+          color: Theme.of(context).primaryColor
               .withOpacity(0.3 + (v * 0.7)),
         ),
       ),
@@ -302,12 +319,13 @@ class _ChatbotViewState extends State<ChatbotView> {
 
   // Campo de texto + botón enviar
   Widget _buildInput() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.fromLTRB(
           12, 8, 12, MediaQuery.of(context).padding.bottom + 8),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
+      decoration: BoxDecoration(
+        color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
+        boxShadow: const [
           BoxShadow(color: Colors.black12, blurRadius: 8),
         ],
       ),
@@ -322,8 +340,22 @@ class _ChatbotViewState extends State<ChatbotView> {
                 hintText: _inicializado
                     ? '¿A dónde quieres ir?'
                     : 'Cargando rutas...',
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.mic_outlined, color: Theme.of(context).primaryColor),
+                  onPressed: _inicializado
+                      ? () {
+                          VoiceSearchHelper.escucharVoz(
+                            context,
+                            onResult: (texto) {
+                              _inputCtrl.text = texto;
+                              _enviar();
+                            },
+                          );
+                        }
+                      : null,
+                ),
                 filled: true,
-                fillColor: AppTheme.blancoFondo,
+                fillColor: isDark ? Colors.black26 : AppTheme.blancoFondo,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
@@ -336,7 +368,7 @@ class _ChatbotViewState extends State<ChatbotView> {
           const SizedBox(width: 8),
           FloatingActionButton.small(
             onPressed: _cargando ? null : _enviar,
-            backgroundColor: AppTheme.azulPrimario,
+            backgroundColor: Theme.of(context).primaryColor,
             child: _cargando
                 ? const SizedBox(
                     width: 18,

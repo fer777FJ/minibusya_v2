@@ -1,8 +1,8 @@
 // lib/views/reportes_historial_view.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../controllers/database_helper.dart';
-import '../models/ruta_model.dart';
 import '../utils/app_theme.dart';
 
 class ReportesHistorialView extends StatefulWidget {
@@ -158,6 +158,7 @@ class _ReportesHistorialViewState extends State<ReportesHistorialView> {
               final lng = reporte['lng'] as double;
               final timestamp = DateTime.parse(reporte['timestamp'] as String);
               final enviado = (reporte['enviado'] as int?) ?? 0;
+              final fotoPath = reporte['foto_path'] as String?;
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -229,7 +230,7 @@ class _ReportesHistorialViewState extends State<ReportesHistorialView> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
+                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
@@ -242,6 +243,25 @@ class _ReportesHistorialViewState extends State<ReportesHistorialView> {
                                   fontSize: 13,
                                   color: AppTheme.grisTexto,
                                 ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        ),
+
+                      // ─── Foto Local (si existe)
+                      if (fotoPath != null && fotoPath.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                File(fotoPath),
+                                height: 120,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                               ),
                             ),
                             const SizedBox(height: 12),

@@ -2,8 +2,8 @@
   "id": "linea_600",
   "sindicato": "Sindicato Pedro Domingo Murillo",
   "numero_linea": "600",
-  "origen": "Inicio de ruta",
-  "destino": "FIn de Ruta - Retorno",
+  "origen": "Fin de tramo - Senkata",
+  "destino": "Fin de tramo - Ceja Calle 2",
   "color_hex": "#0D47A1",
   "color_texto_hex": "#FFFFFF",
   "tarifa_normal": 2.0,
@@ -17,7 +17,7 @@
   "paradas": [
     {
       "id": "linea_600_p01",
-      "nombre": "Inicio de ruta",
+      "nombre": "Fin de tramo - Senkata",
       "lat": -16.596034,
       "lng": -68.190794,
       "es_terminal": true,
@@ -25,7 +25,7 @@
     },
     {
       "id": "linea_600_p02",
-      "nombre": "Senkata - Tramo de Ida",
+      "nombre": "punto de referencia - Senkata",
       "lat": -16.581186,
       "lng": -68.184999,
       "es_terminal": false,
@@ -33,7 +33,7 @@
     },
     {
       "id": "linea_600_p03",
-      "nombre": "Senkata - tramo de vuelta",
+      "nombre": "punto de referencia - Senkata",
       "lat": -16.581186,
       "lng": -68.185334,
       "es_terminal": false,
@@ -41,7 +41,7 @@
     },
     {
       "id": "linea_600_p04",
-      "nombre": "Colegio Jose Manuel Pando - Ida",
+      "nombre": "punto de referencia - Jose Manuel Pando",
       "lat": -16.565635,
       "lng": -68.184067,
       "es_terminal": false,
@@ -49,7 +49,7 @@
     },
     {
       "id": "linea_600_p05",
-      "nombre": "Jose Manuel Pando - Retorno",
+      "nombre": "punto de referencia - Jose Manuel Pando",
       "lat": -16.565555,
       "lng": -68.184332,
       "es_terminal": false,
@@ -57,7 +57,7 @@
     },
     {
       "id": "linea_600_p06",
-      "nombre": "Molino Andino",
+      "nombre": "punto de referencia - Molino Andino",
       "lat": -16.553751,
       "lng": -68.179531,
       "es_terminal": false,
@@ -65,7 +65,7 @@
     },
     {
       "id": "linea_600_p07",
-      "nombre": "Puente Bolivia - Ida",
+      "nombre": "punto de referencia - Puente Bolivia",
       "lat": -16.546275,
       "lng": -68.176891,
       "es_terminal": false,
@@ -73,7 +73,7 @@
     },
     {
       "id": "linea_600_p08",
-      "nombre": "Puente Bolivia - Retorno",
+      "nombre": "punto de referencia - Puente Bolivia",
       "lat": -16.546138,
       "lng": -68.177095,
       "es_terminal": false,
@@ -81,7 +81,7 @@
     },
     {
       "id": "linea_600_p09",
-      "nombre": "Taquiña - Ida",
+      "nombre": "punto de referencia - Taquiña",
       "lat": -16.540787,
       "lng": -68.17507,
       "es_terminal": false,
@@ -89,7 +89,7 @@
     },
     {
       "id": "linea_600_p10",
-      "nombre": "Taquiña - Retorno",
+      "nombre": "punto de referencia - Taquiña",
       "lat": -16.540475,
       "lng": -68.175213,
       "es_terminal": false,
@@ -97,7 +97,7 @@
     },
     {
       "id": "linea_600_p11",
-      "nombre": "Teleferico Morado 6 de Marzo - Ida",
+      "nombre": "punto de referencia - Teleferico Morado 6 de Marzo",
       "lat": -16.523266,
       "lng": -68.169154,
       "es_terminal": false,
@@ -105,7 +105,7 @@
     },
     {
       "id": "linea_600_p12",
-      "nombre": "teleferico Morado 6 de Marzo - Retorno",
+      "nombre": "punto de referencia - Teleferico Morado 6 de Marzo",
       "lat": -16.523188,
       "lng": -68.169378,
       "es_terminal": false,
@@ -113,7 +113,7 @@
     },
     {
       "id": "linea_600_p13",
-      "nombre": "Cruze Viacha - Ida",
+      "nombre": "punto de referencia - Cruce Viacha",
       "lat": -16.516464,
       "lng": -68.166853,
       "es_terminal": false,
@@ -121,7 +121,7 @@
     },
     {
       "id": "linea_600_p14",
-      "nombre": "Cruze Viacha - Retorno",
+      "nombre": "punto de referencia - Cruce Viacha",
       "lat": -16.516591,
       "lng": -68.167159,
       "es_terminal": false,
@@ -129,7 +129,7 @@
     },
     {
       "id": "linea_600_p15",
-      "nombre": "FIn de Ruta - Retorno",
+      "nombre": "Fin de tramo - Ceja Calle 2",
       "lat": -16.506193,
       "lng": -68.163641,
       "es_terminal": true,

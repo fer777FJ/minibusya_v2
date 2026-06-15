@@ -7,6 +7,7 @@ import '../models/ruta_model.dart';
 import '../utils/app_theme.dart';
 import '../widgets/letrero_widget.dart';
 import 'route_detail_view.dart';
+import '../utils/voice_search_helper.dart';
 
 class SearchResultsView extends StatefulWidget {
   final String busquedaInicial;
@@ -65,7 +66,15 @@ class _SearchResultsViewState extends State<SearchResultsView> {
             filled: false,
             suffixIcon: IconButton(
               icon: const Icon(Icons.mic_outlined, color: Colors.white),
-              onPressed: () {/* TODO: voz */},
+              onPressed: () {
+                VoiceSearchHelper.escucharVoz(
+                  context,
+                  onResult: (texto) {
+                    _searchCtrl.text = texto;
+                    _buscar(texto);
+                  },
+                );
+              },
             ),
           ),
           onSubmitted: _buscar,

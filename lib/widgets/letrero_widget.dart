@@ -22,13 +22,26 @@ class LetreroWidget extends StatelessWidget {
     this.height,
   });
 
+  /// Calcula el color de texto con contraste suficiente sobre el fondo.
+  /// Si el color de texto del JSON es muy claro Y el fondo también es claro,
+  /// fuerza negro. Si el texto es muy oscuro Y el fondo también es oscuro, fuerza blanco.
+  Color _resolverColorTexto(Color bg, Color txt) {
+    final luminanceBg = bg.computeLuminance();
+    final luminanceTxt = txt.computeLuminance();
+    // Contraste mínimo: si texto claro sobre fondo claro → negro
+    if (luminanceTxt > 0.7 && luminanceBg > 0.5) return Colors.black87;
+    // Contraste mínimo: si texto oscuro sobre fondo oscuro → blanco
+    if (luminanceTxt < 0.1 && luminanceBg < 0.2) return Colors.white;
+    return txt;
+  }
+
   @override
   Widget build(BuildContext context) {
     final bgColor = hexToColor(colorHex);
-    final txtColor = hexToColor(colorTextoHex);
+    final txtColor = _resolverColorTexto(bgColor, hexToColor(colorTextoHex));
 
     return Container(
-      width: width ?? 120,
+      width: width ?? 140,
       height: height ?? 56,
       decoration: BoxDecoration(
         color: bgColor,
@@ -93,13 +106,18 @@ class LetreroMiniWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = hexToColor(colorHex);
+    // Contraste automático: fondo claro → texto negro, fondo oscuro → texto blanco
+    final luminance = bgColor.computeLuminance();
+    final txtColor = luminance > 0.5 ? Colors.black87 : Colors.white;
+    final borderColor = luminance > 0.5 ? Colors.black26 : Colors.white;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Colors.white, width: 1.5),
+        border: Border.all(color: borderColor, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.3),
@@ -109,10 +127,12 @@ class LetreroMiniWidget extends StatelessWidget {
       ),
       child: Text(
         numeroLinea,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: txtColor,
+          fontSize: 14,
           fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
         ),
       ),
     );
